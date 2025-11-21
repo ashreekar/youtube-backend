@@ -146,6 +146,7 @@ const getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
         .select("-password -createdAt -updatedAt")
         .populate("channel").select("-updatedAt")
+        .populate("subscribedTo").select("-owner -videos -subscribers -playlist -posts -createdAt -updatedAt")
 
     if (!user) {
         throw new APIerror(404, "User not found");

@@ -38,10 +38,16 @@ const userSchema = new Schema(
                 ref: "Channel"
             }
         ],
-        watchHistory:[
+        subscribedTo: [
             {
-                type:Schema.Types.ObjectId,
-                ref:"Video"
+                type: Schema.Types.ObjectId,
+                ref: "Channel"
+            }
+        ],
+        watchHistory: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Video"
             }
         ],
         password: {

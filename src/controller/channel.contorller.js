@@ -39,6 +39,12 @@ const createChannel = asyncHandler(async (req, res) => {
         }
     )
 
+    await User.findByIdAndUpdate(req.user._id,
+        {
+            $push: { channel: channel._id }
+        }
+    )
+
     res.status(201).json(new APIresponse(201, channel, "channel created"));
 })
 
@@ -158,4 +164,45 @@ const getChannelById = asyncHandler(async (req, res) => {
     return res.status(200).json(new APIresponse(200, responseObject, "channel fetched sucessfully"));
 })
 
-export { createChannel, updateAvatar, updateBanner, getSelfChannel, getChannelById };
+// const deleteChannel = asyncHandler(async (req, res) => {
+//     await User.findByIdAndUpdate(
+//         req.user._id,
+//         {
+//             $pop: { channel: {} }
+//         }
+//     )
+
+//     // not complte but need to finish
+// })
+
+const subscribeChannel = asyncHandler(async (req, res) => {
+    const { id } = req.params.id;
+
+    const channel = await Channel.findByIdAndUpdate(
+        id,
+        {
+            $push: { subscribers: req.user._id }
+        },
+        {
+            new: true
+        }
+    )
+
+    if (!channel) {
+        throw new APIerror(200, "Channel not found");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $push: { subscribedTo: id }
+        },
+        {
+            new: true
+        }
+    )
+
+    res.status(201).json(new APIresponse(201, user, "Subscribed"))
+})
+
+export { createChannel, updateAvatar, updateBanner, getSelfChannel, getChannelById, subscribeChannel };

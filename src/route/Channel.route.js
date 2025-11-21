@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/verifyJwt.js";
-import { createChannel, getChannelById, getSelfChannel, updateAvatar, updateBanner } from "../controller/channel.contorller.js";
+import { createChannel, getChannelById, getSelfChannel, subscribeChannel, updateAvatar, updateBanner } from "../controller/channel.contorller.js";
 
 const router = Router();
 
@@ -18,10 +18,13 @@ router
     ),
         createChannel
     )
+    .delete(verifyJwt);
 
 router
     .route('/:id')
     .get(verifyJwt, getChannelById)
+    .post(verifyJwt, subscribeChannel)
+    .put(verifyJwt);
 
 router
     .post('/banner')
