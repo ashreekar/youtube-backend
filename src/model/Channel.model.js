@@ -24,6 +24,10 @@ const channelSchema = new mongoose.Schema(
         banner: {
             type: String
         },
+        owner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
         videos: [
             {
                 type: mongoose.Schema.Types.ObjectId,
