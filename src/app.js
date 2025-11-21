@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+// Routes
+import userRouter from "./route/User.route.js"
+
 const app = express();
 
 app.use(cors(
@@ -21,5 +24,7 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
     res.send("Server is runnig");
 })
+
+app.use('/', userRouter);
 
 export { app };
