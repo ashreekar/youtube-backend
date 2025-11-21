@@ -12,7 +12,7 @@ const generateLoginToken = async (id) => {
 
         return { acceastoken };
     } catch (error) {
-        throw new APIerror(500, "Somethingwent wrong while generating acces token")
+        throw new APIerror(500, "Something went wrong while generating access token")
     }
 }
 
@@ -54,17 +54,17 @@ const createUser = asyncHandler(async (req, res) => {
             username,
             email,
             fullName,
-            avatar:avatar.url,
+            avatar: avatar.url,
             watchhistory: [],
             password,
-            coverImage:coverImage.url
+            coverImage: coverImage.url
         }
     )
 
     const { acceastoken } = await generateLoginToken(user._id);
 
     const loggeduser = await User.findById(user._id).
-        select("-password -watchhistory")
+        select("-password -watchhistory -createdAt -updatedAt")
 
     const options = {
         httpOnly: true,
@@ -90,7 +90,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
     if (!username && !email) {
-        throw new APIerror(400, "Username or password required");
+        throw new APIerror(400, "Username or email required");
     }
 
     const user = await User.findOne(
@@ -112,7 +112,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { acceastoken } = await generateLoginToken(user._id);
 
     const loggeduser = await User.findById(user._id).
-        select("-password -watchhistory")
+        select("-password -watchhistory -createdAt -updatedAt")
 
     const options = {
         httpOnly: true,
@@ -126,8 +126,7 @@ const loginUser = asyncHandler(async (req, res) => {
             new APIresponse(200, {
                 user: loggeduser,
                 acceastoken,
-            }),
-            "Login sucessfull"
+            }, "Login sucessfull")
         )
 })
 
@@ -143,4 +142,102 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new APIresponse(200, {}, "User logged out"))
 })
 
-export { createUser, loginUser, logoutUser };
+const getUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+        .select("-password -createdAt -updatedAt")
+        .populate("channel").select("-updatedAt")
+
+    if (!user) {
+        throw new APIerror(404, "User not found");
+    }
+
+    return res.status(200).json(new APIresponse(200, user, "user fetched sucessfully"));
+})
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req?.files?.avatar[0]?.path;
+
+    if (!avatarLocalPath) {
+        throw new APIerror(400, "Avatar is needed to update avatar");
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    const url = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: { avatar: avatar.url }
+        },
+        {
+            new: true
+        }
+    )
+        .select("avatar")
+
+    res.status(201).json(new APIresponse(201, url, "avatar changed"));
+})
+
+const updateCoverImage = asyncHandler(async (req, res) => {
+    const coverLocalPath = req?.files?.coverImage[0]?.path;
+
+    if (!coverLocalPath) {
+        throw new APIerror(400, "Cover image is needed to update cover image");
+    }
+
+    const coverImage = await uploadOnCloudinary(coverLocalPath);
+
+    const url = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: { coverImage: coverImage.url }
+        },
+        {
+            new: true
+        }
+    )
+        .select("coverImage")
+
+    res.status(201).json(new APIresponse(201, url, "cover image changed"));
+})
+
+const updateUserDetails = asyncHandler(async (req, res) => {
+    const body = req.body;
+
+    const isExisting = await User.findOne({
+        $or: [
+            { username: body?.username },
+            { email: body?.email }
+        ]
+    });
+
+    if (isExisting && isExisting._id.toString() !== req.user._id.toString()) {
+        throw new APIerror(400, "User with username or email already exists");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        { $set: { ...body } },
+        { new: true }
+    ).select("-password -createdAt -updatedAt");
+
+    return res.status(200).json(
+        new APIresponse(200, user, "User details updated")
+    );
+})
+
+const deleteUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndDelete(req.user._id);
+
+    return res.status(201).json(new APIresponse(201, null, "user deleted"));
+})
+
+export {
+    createUser,
+    loginUser,
+    logoutUser,
+    getUser,
+    updateAvatar,
+    updateCoverImage,
+    updateUserDetails,
+    deleteUser
+};

@@ -32,10 +32,16 @@ const userSchema = new Schema(
         coverImage: {
             type: String,
         },
-        watchhistory: [
+        channel: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "Video"
+                ref: "Channel"
+            }
+        ],
+        watchHistory:[
+            {
+                type:Schema.Types.ObjectId,
+                ref:"Video"
             }
         ],
         password: {
