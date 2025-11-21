@@ -25,6 +25,6 @@ app.get('/', (req, res) => {
     res.send("Server is runnig");
 })
 
-app.use('/', userRouter);
+app.use('/api/v1/user', userRouter);
 
 export { app };

@@ -7,7 +7,14 @@ const router = Router();
 
 router
     .route('/create')
-    .post(upload.fields(["coverImage", "avatar"]), createUser);
+    .post( upload.fields([{
+        name: "avatar",
+        maxCount: 1
+    },
+    {
+        name: "coverImage",
+        maxCount: 1
+    }]), createUser);
 
 router.route('/login').post(loginUser);
 router.route('/logout').post(verifyJwt, logoutUser);

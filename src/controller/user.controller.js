@@ -46,7 +46,6 @@ const createUser = asyncHandler(async (req, res) => {
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverLocalPath = req.files.coverImage[0].path;
     }
-
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverLocalPath);
 
@@ -55,10 +54,10 @@ const createUser = asyncHandler(async (req, res) => {
             username,
             email,
             fullName,
-            avatar,
+            avatar:avatar.url,
             watchhistory: [],
             password,
-            coverImage
+            coverImage:coverImage.url
         }
     )
 
@@ -90,7 +89,7 @@ const createUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
-    if (!username || !email) {
+    if (!username && !email) {
         throw new APIerror(400, "Username or password required");
     }
 
