@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongooseagreegatepaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new mongoose.Schema(
     {
@@ -10,7 +11,7 @@ const videoSchema = new mongoose.Schema(
             type: String,  // I frame url
             required: true
         },
-        thubnail: {
+        thumbnail: {
             type: String, // cloudinary
             required: true,
         },
@@ -25,21 +26,13 @@ const videoSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Channel",
             required: true
-        },
-        reactions: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Reaction"
-            }
-        ],
-        comments: [
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: "Comment"
-            }
-        ]
+        }
     },
     {
         timestamps: true
     }
 )
+
+videoSchema.plugin(mongooseagreegatepaginate);
+
+export const Video = mongoose.model("Video", videoSchema);
