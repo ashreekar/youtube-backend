@@ -121,4 +121,12 @@ const uploadVideo = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, video, "New video created"));
 })
 
+const updateVideo=asyncHandler(async(req,res)=>{
+    
+})
+
+const deleteVideo=asyncHandler(async(req,res)=>{
+
+})
+
 export { getVideoById, getallvideos, uploadVideo };

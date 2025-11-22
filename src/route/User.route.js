@@ -18,7 +18,7 @@ router
     .route('/')
     .get(verifyJwt, getUser)
     .put(verifyJwt, updateUserDetails)
-    .delete(verifyJwt,del);
+    .delete(verifyJwt);
 
 router
     .route('/create')

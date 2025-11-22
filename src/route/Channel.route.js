@@ -1,7 +1,15 @@
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/verifyJwt.js";
-import { createChannel, getChannelById, getSelfChannel, subscribeChannel, updateAvatar, updateBanner } from "../controller/channel.contorller.js";
+
+import {
+    createChannel,
+    getChannelById,
+    getSelfChannel,
+    subscribeChannel,
+    updateAvatar,
+    updateBanner
+} from "../controller/channel.controller.js";
 
 const router = Router();
 
@@ -18,16 +26,16 @@ router
     ),
         createChannel
     )
+    .put(verifyJwt)
     .delete(verifyJwt);
 
 router
     .route('/:id')
     .get(verifyJwt, getChannelById)
     .post(verifyJwt, subscribeChannel)
-    .put(verifyJwt);
 
 router
-    .post('/banner')
+    .route('/banner')
     .post(verifyJwt, upload.fields(
         [
             {
@@ -40,7 +48,7 @@ router
     )
 
 router
-    .post('/avatar')
+    .route('/avatar')
     .post(verifyJwt, upload.fields(
         [
             {
