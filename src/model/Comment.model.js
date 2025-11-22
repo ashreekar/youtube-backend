@@ -9,19 +9,19 @@ const commentSchema = new Schema(
         },
         video: {
             type: Schema.Types.ObjectId,
-            reference: "Video"
+            ref: "Video"
         },
         comment: {
             type: Schema.Types.ObjectId,
-            reference: "Comment"
+            ref: "Comment"
         },
         post: {
             type: Schema.Types.ObjectId,
-            reference: "Post"
+            ref: "Post"
         },
         commenter: {
             type: Schema.Types.ObjectId,
-            reference: "User"
+            ref: "User"
         },
     },
     {
