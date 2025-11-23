@@ -33,4 +33,4 @@ router
     .get(getCommentOfPost)
     .post(verifyJwt, commentOnPost)
 
-export { router };
+export default router;

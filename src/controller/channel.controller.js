@@ -238,7 +238,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
 })
 
 const updateChannel = asyncHandler(async (req, res) => {
-    const channel =await Channel.findByIdAndUpdate(
+    const channel = await Channel.findByIdAndUpdate(
         req.channel._id,
         {
             ...req.body
@@ -251,6 +251,36 @@ const updateChannel = asyncHandler(async (req, res) => {
     res.status(200).json(new APIresponse(200, channel, "Channel details updated"));
 })
 
+const isSubscribed = asyncHandler(async (req, res) => {
+    const channelId = req.params.id;
+    const userId = req.user._id;
+
+    const user = await User.find(
+        {
+            _id: userId,
+            subscribedTo: channelId
+        }
+    )
+
+    if (user) {
+        res.status(200).json(
+            new APIresponse(
+                200,
+                { subscribed: true },
+                "User subscribed"
+            )
+        )
+    } else {
+        res.status(200).json(
+            new APIresponse(
+                200,
+                { subscribed: false },
+                "User not subscribed"
+            )
+        )
+    }
+})
+
 export {
     createChannel,
     updateAvatar,
@@ -259,5 +289,6 @@ export {
     getChannelById,
     subscribeChannel,
     deleteChannel,
-    updateChannel
+    updateChannel,
+    isSubscribed
 };

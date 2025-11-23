@@ -8,6 +8,7 @@ import {
     deleteChannel,
     getChannelById,
     getSelfChannel,
+    isSubscribed,
     subscribeChannel,
     updateAvatar,
     updateBanner,
@@ -36,6 +37,8 @@ router
     .route('/:id')
     .get(verifyJwt, getChannelById)
     .post(verifyJwt, subscribeChannel)
+
+router.route("/subscription/:id").get(verifyJwt, isSubscribed);
 
 router
     .route('/banner')

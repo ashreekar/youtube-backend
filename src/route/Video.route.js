@@ -1,6 +1,13 @@
 import { Router } from "express";
 import { verifyJwt } from "../middleware/verifyJwt.js"
-import { changeThumbnail, deleteVideo, getallvideos, getVideoById, updateVideo, uploadVideo } from "../controller/video.controller.js";
+import {
+    changeThumbnail,
+    deleteVideo,
+    getallvideos,
+    getVideoById,
+    updateVideo,
+    uploadVideo
+} from "../controller/video.controller.js";
 import { verifyChannel } from "../middleware/verifyChannel.js";
 import { verifyOwner } from "../middleware/verify.owner.js";
 
@@ -12,7 +19,7 @@ router
     .post(verifyJwt, verifyChannel, uploadVideo)
 
 router
-    .route('/:id/thumbnail')
+    .route('/thumbnail/:id')
     .put(verifyJwt, verifyChannel, verifyOwner, changeThumbnail)
 
 router
