@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 
 // Routes
 import userRouter from "./route/User.route.js"
+import channelRouter from "./route/Channel.route.js"
+import vidoeRouter from "./route/Video.route.js"
 
 const app = express();
 
@@ -21,10 +23,9 @@ app.use(express.urlencoded({
 app.use(express.static('public'));
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
-    res.send("Server is runnig");
-})
-
 app.use('/api/v1/user', userRouter);
+app.use('/api/v1/video', vidoeRouter);
+app.use('/api/v1/channel', channelRouter);
+app.use('/api/v1/post', userRouter);
 
 export { app };

@@ -18,6 +18,9 @@ const channelSchema = new mongoose.Schema(
             index: true,
             trim: true
         },
+        description: {
+            type: String
+        },
         avatar: {
             type: String
         },

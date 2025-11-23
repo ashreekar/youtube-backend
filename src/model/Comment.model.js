@@ -30,4 +30,4 @@ const commentSchema = new Schema(
 
 commentSchema.plugin(mongooseagreegatepaginate);
 
-export const Commnet = mongoose.model("Comment", commentSchema);
+export const Comment = mongoose.model("Comment", commentSchema);

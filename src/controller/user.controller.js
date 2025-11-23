@@ -240,7 +240,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     if (user.channel?.length > 0) {
         const channel = await Channel.findByIdAndDelete(user.channel[0]);
         await Video.findOneAndDelete({ owner: channel._id });
-        await Playlist.findOneAndDelete({ postedBy: channel._id });
+        await Playlist.findOneAndDelete({ createdBy: channel._id });
         await Post.findOneAndDelete({ postedBy: channel._id });
     }
 

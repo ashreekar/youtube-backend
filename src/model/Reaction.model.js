@@ -15,7 +15,6 @@ const reactionSchema = new mongoose.Schema(
       required: true,
       index: true
     },
-
     video: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Video",
@@ -57,6 +56,4 @@ reactionSchema.index(
   { unique: true, sparse: true }
 );
 
-const Reaction = mongoose.model("Reaction", reactionSchema);
-
-export default Reaction;
+export const Reaction = mongoose.model("Reaction", reactionSchema);

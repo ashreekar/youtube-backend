@@ -85,7 +85,7 @@ const updateBanner = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Cover image is needed to update cover image");
     }
 
-    const banner = await uploadOnCloudinary(coverLocalPath);
+    const banner = await uploadOnCloudinary(bannerLocalPath);
 
     const url = await Channel.findOneAndUpdate(
         {
