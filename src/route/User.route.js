@@ -4,6 +4,7 @@ import { verifyJwt } from '../middleware/verifyJwt.js';
 
 import { 
     createUser, 
+    deleteUser, 
     getUser, 
     loginUser, 
     logoutUser, 
@@ -18,7 +19,7 @@ router
     .route('/')
     .get(verifyJwt, getUser)
     .put(verifyJwt, updateUserDetails)
-    .delete(verifyJwt);
+    .delete(verifyJwt, deleteUser);
 
 router
     .route('/create')

@@ -4,6 +4,14 @@ import { APIerror } from "../util/APIerror.js";
 import { APIresponse } from "../util/APIresponse.js";
 import { uploadOnCloudinary, deleteOnCloudinary } from "../util/cloudinary.js";
 
+// Models import
+import { Video } from "../model/Video.model.js";
+import { Channel } from "../model/Channel.model.js";
+import { Comment } from "../model/Comment.model.js";
+import { Playlist } from "../model/Playlist.model.js";
+import { Post } from "../model/Post.model.js";
+import { Reaction } from "../model/Reaction.model.js";
+
 const generateLoginToken = async (id) => {
     try {
         const user = await User.findById(id);
@@ -227,7 +235,17 @@ const updateUserDetails = asyncHandler(async (req, res) => {
 })
 
 const deleteUser = asyncHandler(async (req, res) => {
-    await User.findByIdAndDelete(req.user._id);
+    const user = await User.findByIdAndDelete(req.user._id);
+
+    if (user.channel?.length > 0) {
+        const channel = await Channel.findByIdAndDelete(user.channel[0]);
+        await Video.findOneAndDelete({ owner: channel._id });
+        await Playlist.findOneAndDelete({ postedBy: channel._id });
+        await Post.findOneAndDelete({ postedBy: channel._id });
+    }
+
+    await Comment.findOneAndDelete({ commenter: user._id });
+    await Reaction.findOneAndDelete({ reactionBy: user._id });
 
     return res.status(201).json(new APIresponse(201, null, "user deleted"));
 })
