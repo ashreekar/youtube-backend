@@ -1,9 +1,14 @@
-import { Channel } from "../model/Channel.model.js";
-import { User } from "../model/User.model.js";
 import { APIerror } from "../util/APIerror.js";
 import { APIresponse } from "../util/APIresponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { uploadOnCloudinary } from "../util/cloudinary.js"
+
+// Models import
+import { Channel } from "../model/Channel.model.js";
+import { User } from "../model/User.model.js";
+import { Video } from "../model/Video.model.js";
+import { Playlist } from "../model/Playlist.model.js";
+import { Post } from "../model/Post.model.js";
 
 const createChannel = asyncHandler(async (req, res) => {
     const { name, handle } = req.body;
@@ -184,16 +189,23 @@ const getChannelById = asyncHandler(async (req, res) => {
     return res.status(200).json(new APIresponse(200, responseObject, "channel fetched sucessfully"));
 })
 
-// const deleteChannel = asyncHandler(async (req, res) => {
-//     await User.findByIdAndUpdate(
-//         req.user._id,
-//         {
-//             $pop: { channel: {} }
-//         }
-//     )
+const deleteChannel = asyncHandler(async (req, res) => {
+    const channel = await Channel.findByIdAndDelete(req.channel.id);
+    await Video.findOneAndDelete({ owner: req.channel._id });
+    await Post.findOneAndDelete({ postedBy: req.channel._id });
+    await Playlist.findOneAndDelete({ createdBy: req.channel._id });
 
-//     // not complte but need to finish
-// })
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                channel: []
+            }
+        }
+    )
+
+    res.status(201).json(new APIresponse(201, channel, "Channel deleted sucessfully"));
+})
 
 const subscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params.id;
@@ -225,4 +237,27 @@ const subscribeChannel = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, user, "Subscribed"))
 })
 
-export { createChannel, updateAvatar, updateBanner, getSelfChannel, getChannelById, subscribeChannel };
+const updateChannel = asyncHandler(async (req, res) => {
+    const channel = Channel.findByIdAndUpdate(
+        req.channel._id,
+        {
+            ...req.body
+        },
+        {
+            new: true
+        }
+    )
+
+    res.stats(200).json(new APIresponse(200, channel, "Channel details updated"));
+})
+
+export {
+    createChannel,
+    updateAvatar,
+    updateBanner,
+    getSelfChannel,
+    getChannelById,
+    subscribeChannel,
+    deleteChannel,
+    updateChannel
+};

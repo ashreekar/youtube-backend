@@ -1,14 +1,17 @@
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware.js"
 import { verifyJwt } from "../middleware/verifyJwt.js";
+import { verifyChannel } from "../middleware/verifyChannel.js";
 
 import {
     createChannel,
+    deleteChannel,
     getChannelById,
     getSelfChannel,
     subscribeChannel,
     updateAvatar,
-    updateBanner
+    updateBanner,
+    updateChannel
 } from "../controller/channel.controller.js";
 
 const router = Router();
@@ -26,8 +29,8 @@ router
     ),
         createChannel
     )
-    .put(verifyJwt)
-    .delete(verifyJwt);
+    .put(verifyJwt, verifyChannel, updateChannel)
+    .delete(verifyJwt, verifyChannel, deleteChannel);
 
 router
     .route('/:id')
