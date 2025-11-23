@@ -101,8 +101,8 @@ const getVideoById = asyncHandler(async (req, res) => {
 const uploadVideo = asyncHandler(async (req, res) => {
     const { title, url, description, category } = req.body;
 
-    if(!title || !url || !description || !category){
-        throw new APIerror(400,"All fields must be filled");
+    if (!title || !url || !description || !category) {
+        throw new APIerror(400, "All fields must be filled");
     }
 
     const thumbnailLocalPath = req?.files?.thumbnail[0]?.path;
@@ -126,12 +126,12 @@ const uploadVideo = asyncHandler(async (req, res) => {
         }
     )
 
-     await Channel.findByIdAndUpdate(
-            req.channel._id,
-            {
-                $push: { videos: video._id }
-            }
-        )
+    await Channel.findByIdAndUpdate(
+        req.channel._id,
+        {
+            $push: { videos: video._id }
+        }
+    )
 
     res.status(201).json(new APIresponse(201, video, "New video created"));
 })
@@ -237,7 +237,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     await Channel.findByIdAndUpdate(
         req.channel._id,
         {
-            $pull: { videos: id  }
+            $pull: { videos: id }
         }
     )
     await Reaction.deleteMany({ video: id })
@@ -247,6 +247,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 })
 
 const changeThumbnail = asyncHandler(async (req, res) => {
+    const { id } = req.params;
     const thumbnailLocalPath = req?.files?.thumbnail[0]?.path;
 
     if (!thumbnailLocalPath) {
@@ -255,10 +256,8 @@ const changeThumbnail = asyncHandler(async (req, res) => {
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-    const url = await Video.findOneAndUpdate(
-        {
-            owner: req.channel._id
-        },
+    const url = await Video.findByIdAndUpdate(
+        id,
         {
             $set: { thumbnail: thumbnail.url }
         },
