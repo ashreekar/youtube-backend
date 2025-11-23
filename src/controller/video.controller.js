@@ -23,7 +23,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     const video = await Video.aggregate(
         [
             {
-                $match: { _id: new mongoose.Types.ObjectId(id) }
+                $match: { _id: id }
             },
             {
                 $lookup: {
@@ -118,9 +118,17 @@ const uploadVideo = asyncHandler(async (req, res) => {
             description,
             category,
             views: 0,
-            thumbnail: thumbnail.url
+            thumbnail: thumbnail.url,
+            owner: req.channel._id
         }
     )
+
+     await Channel.findByIdAndUpdate(
+            req.channel._id,
+            {
+                $push: { videos: video._id }
+            }
+        )
 
     res.status(201).json(new APIresponse(201, video, "New video created"));
 })

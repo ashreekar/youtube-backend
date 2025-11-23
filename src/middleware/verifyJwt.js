@@ -3,7 +3,7 @@ import { asyncHandler } from '../util/asyncHandler.js';
 import { APIerror } from '../util/APIerror.js';
 import { User } from '../model/User.model.js';
 
-export const verifyJwt = asyncHandler(async (req, __dirname, next) => {
+export const verifyJwt = asyncHandler(async (req, res, next) => {
     const token = req?.cookies['sgAcceasToken'] || req.headers['authorization']?.replace("Bearer ", "");
 
     if (!token) {
