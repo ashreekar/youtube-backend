@@ -1,0 +1,217 @@
+import { APIerror } from "../util/APIerror.js";
+import { APIresponse } from "../util/APIresponse.js";
+import { asyncHandler } from "../util/asyncHandler.js";
+import { Reaction } from "../model/Reaction.model.js"
+
+const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!req.user) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const reaction = await Reaction.findOne(
+        {
+            video: id,
+            reactionBy: req?.user?._id
+        }
+    )
+
+    if (!reaction) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const type = reaction.type;
+
+    res.status(200).json(new APIresponse(200, { reaction: type }, "reaction sent"));
+})
+
+const getReactionStatusOnComment = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!req.user) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const reaction = await Reaction.findOne(
+        {
+            comment: id,
+            reactionBy: req?.user?._id
+        }
+    )
+
+    if (!reaction) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const type = reaction.type;
+
+    res.status(200).json(new APIresponse(200, { reaction: type }, "reaction sent"));
+})
+
+const getReactionStatusOnPost = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!req.user) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const reaction = await Reaction.findOne(
+        {
+            post: id,
+            reactionBy: req?.user?._id
+        }
+    )
+
+    if (!reaction) {
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+    }
+
+    const type = reaction.type;
+
+    res.status(200).json(new APIresponse(200, { reaction: type }, "reaction sent"));
+})
+
+const toggleReactionOnVideo = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { type } = req.body;
+
+    if (type !== "like" && type !== "dislike") {
+        throw new APIerror(400, "Invalid reaction");
+    }
+
+    const updateReaction = await Reaction.findOneAndUpdate(
+        {
+            reactionBy: req.user._id,
+            video: id,
+        },
+        {
+            type
+        }
+    )
+
+    if (!updateReaction) {
+        await Reaction.create(
+            {
+                reactionBy: req.user._id,
+                type,
+                video: id
+            }
+        )
+    }
+
+    res.status(201).json(new APIresponse(201, { reaction: type }, "Reaction registered"));
+})
+
+const toggleReactionOnPost = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { type } = req.body;
+
+    if (type !== "like" && type !== "dislike") {
+        throw new APIerror(400, "Invalid reaction");
+    }
+
+    const updateReaction = await Reaction.findOneAndUpdate(
+        {
+            reactionBy: req.user._id,
+            post: id,
+        },
+        {
+            type
+        }
+    )
+
+    if (!updateReaction) {
+        await Reaction.create(
+            {
+                reactionBy: req.user._id,
+                type,
+                post: id
+            }
+        )
+    }
+
+    res.status(201).json(new APIresponse(201, { reaction: type }, "Reaction registered"));
+})
+
+const toggleReactionOnComment = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { type } = req.body;
+
+    if (type !== "like" && type !== "dislike") {
+        throw new APIerror(400, "Invalid reaction");
+    }
+
+    const updateReaction = await Reaction.findOneAndUpdate(
+        {
+            reactionBy: req.user._id,
+            comment: id,
+        },
+        {
+            type
+        }
+    )
+
+    if (!updateReaction) {
+        await Reaction.create(
+            {
+                reactionBy: req.user._id,
+                type,
+                comment: id
+            }
+        )
+    }
+
+    res.status(201).json(new APIresponse(201, { reaction: type }, "Reaction registered"));
+})
+
+const deleteReactionOnVideo = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    await Reaction.deleteOne(
+        {
+            video: id,
+            reactionBy: req.user._id
+        }
+    )
+
+    res.status(200).json(new APIresponse(200, { reaction: "NA" }, "Deleted reaction"))
+})
+
+const deleteReactionOnComment = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    await Reaction.deleteOne(
+        {
+            comment: id,
+            reactionBy: req.user._id
+        }
+    )
+
+    res.status(200).json(new APIresponse(200, { reaction: "NA" }, "Deleted reaction"))
+})
+
+const deleteReactionPost = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    await Reaction.deleteOne(
+        {
+            post: id,
+            reactionBy: req.user._id
+        }
+    )
+
+    res.status(200).json(new APIresponse(200, { reaction: "NA" }, "Deleted reaction"))
+})
+
+export {
+    getReactionStatusOnComment,
+    getReactionStatusOnPost,
+    getReactionStatusOnVideo,
+    toggleReactionOnVideo,
+    toggleReactionOnComment,
+    toggleReactionOnPost,
+    deleteReactionOnComment,
+    deleteReactionPost,
+    deleteReactionOnVideo
+}
