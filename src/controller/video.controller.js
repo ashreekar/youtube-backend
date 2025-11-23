@@ -82,7 +82,6 @@ const getVideoById = asyncHandler(async (req, res) => {
                     category: 1,
                     views: 1,
                     owner: 1,
-                    comments: 1,
                     totalComments: 1,
                     likes: 1,
                     dislikes: 1,
@@ -102,13 +101,17 @@ const getVideoById = asyncHandler(async (req, res) => {
 const uploadVideo = asyncHandler(async (req, res) => {
     const { title, url, description, category } = req.body;
 
-    const thubnailLocalPath = req?.files?.thumbnail[0]?.path;
+    if(!title || !url || !description || !category){
+        throw new APIerror(400,"All fields must be filled");
+    }
 
-    if (!thubnailLocalPath) {
+    const thumbnailLocalPath = req?.files?.thumbnail[0]?.path;
+
+    if (!thumbnailLocalPath) {
         throw new APIerror(400, "Thumbnail is required field");
     }
 
-    const thumbnail = await uploadOnCloudinary(thubnailLocalPath);
+    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
 
     const video = await Video.create(
@@ -207,7 +210,6 @@ const updateVideo = asyncHandler(async (req, res) => {
                     category: 1,
                     views: 1,
                     owner: 1,
-                    comments: 1,
                     totalComments: 1,
                     likes: 1,
                     dislikes: 1,
@@ -235,11 +237,11 @@ const deleteVideo = asyncHandler(async (req, res) => {
     await Channel.findByIdAndUpdate(
         req.channel._id,
         {
-            $pop: { videos: { id } }
+            $pull: { videos: id  }
         }
     )
-    await Reaction.findOneAndDelete({ video: id })
-    await Comment.findOneAndDelete({ video: id })
+    await Reaction.deleteMany({ video: id })
+    await Comment.deleteMany({ video: id })
 
     res.status(200).json(new APIresponse("Video deleted sucessfully"));
 })
@@ -255,7 +257,7 @@ const changeThumbnail = asyncHandler(async (req, res) => {
 
     const url = await Video.findOneAndUpdate(
         {
-            owner: req.user._id
+            owner: req.channel._id
         },
         {
             $set: { thumbnail: thumbnail.url }

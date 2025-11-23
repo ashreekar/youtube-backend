@@ -92,7 +92,7 @@ const updateBanner = asyncHandler(async (req, res) => {
             owner: req.user._id
         },
         {
-            $set: { coverImage: banner.url }
+            $set: { banner: banner.url }
         },
         {
             new: true
@@ -146,7 +146,7 @@ const getSelfChannel = asyncHandler(async (req, res) => {
 })
 
 const getChannelById = asyncHandler(async (req, res) => {
-    const { id } = req.params.id;
+    const { id } = req.params;
 
     const channel = await Channel.findById(id)
         .select("-createdAt -updatedAt")
@@ -238,7 +238,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
 })
 
 const updateChannel = asyncHandler(async (req, res) => {
-    const channel = Channel.findByIdAndUpdate(
+    const channel =await Channel.findByIdAndUpdate(
         req.channel._id,
         {
             ...req.body
@@ -248,7 +248,7 @@ const updateChannel = asyncHandler(async (req, res) => {
         }
     )
 
-    res.stats(200).json(new APIresponse(200, channel, "Channel details updated"));
+    res.status(200).json(new APIresponse(200, channel, "Channel details updated"));
 })
 
 export {

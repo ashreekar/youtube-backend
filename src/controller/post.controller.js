@@ -37,7 +37,7 @@ const getPostById = asyncHandler(async (req, res) => {
                 $lookup: {
                     from: "comments",
                     localField: "_id",
-                    foreignField: "comment",
+                    foreignField: "post",
                     as: "comments"
                 }
             },
@@ -75,10 +75,9 @@ const getPostById = asyncHandler(async (req, res) => {
             },
             {
                 $project: {
-                    titlcontente: 1,
+                    content: 1,
                     images: 1,
                     owner: 1,
-                    comments: 1,
                     totalComments: 1,
                     likes: 1,
                     dislikes: 1,
@@ -104,13 +103,9 @@ const addPost = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Images is required field");
     }
 
-    const images = [];
-
-    for (let image in imagesArray) {
-        let imagepath = await uploadOnCloudinary(image);
-        images.push(imagepath);
-    }
-
+    const images =await imagesArray.map(async (image) => {
+        return await uploadOnCloudinary(image);
+    })
 
     const post = await Post.create(
         {
@@ -197,7 +192,6 @@ const updatePost = asyncHandler(async (req, res) => {
                     titlcontente: 1,
                     images: 1,
                     owner: 1,
-                    comments: 1,
                     totalComments: 1,
                     likes: 1,
                     dislikes: 1,
@@ -225,11 +219,11 @@ const deletePost = asyncHandler(async (req, res) => {
     await Channel.findByIdAndUpdate(
         req.channel._id,
         {
-            $pop: { posts: { id } }
+            $pull: { posts:  id  }
         }
     )
-    await Reaction.findOneAndDelete({ post: id })
-    await Comment.findOneAndDelete({ post: id })
+    await Reaction.deleteMany({ post: id })
+    await Comment.deleteMany({ post: id })
 
     res.status(200).json(new APIresponse("Post deleted sucessfully"));
 })

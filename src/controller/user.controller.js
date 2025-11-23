@@ -153,8 +153,16 @@ const logoutUser = asyncHandler(async (req, res) => {
 const getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
         .select("-password -createdAt -updatedAt")
-        .populate("channel").select("-updatedAt")
-        .populate("subscribedTo").select("-owner -videos -subscribers -playlist -posts -createdAt -updatedAt")
+        .populate(
+            {
+                path: "channel",
+                select: "-updatedAt"
+            }
+        )
+        .populate({
+            path: "subscribedTo",
+            select: "-owner -videos -subscribers -playlist -posts -createdAt -updatedAt"
+        })
 
     if (!user) {
         throw new APIerror(404, "User not found");
@@ -239,13 +247,13 @@ const deleteUser = asyncHandler(async (req, res) => {
 
     if (user.channel?.length > 0) {
         const channel = await Channel.findByIdAndDelete(user.channel[0]);
-        await Video.findOneAndDelete({ owner: channel._id });
-        await Playlist.findOneAndDelete({ createdBy: channel._id });
-        await Post.findOneAndDelete({ postedBy: channel._id });
+        await Video.deleteMany({ owner: channel._id });
+        await Playlist.deleteMany({ createdBy: channel._id });
+        await Post.deleteMany({ postedBy: channel._id });
     }
 
-    await Comment.findOneAndDelete({ commenter: user._id });
-    await Reaction.findOneAndDelete({ reactionBy: user._id });
+    await Comment.deleteMany({ commenter: user._id });
+    await Reaction.deleteMany({ reactionBy: user._id });
 
     return res.status(201).json(new APIresponse(201, null, "user deleted"));
 })
