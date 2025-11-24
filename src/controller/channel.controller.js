@@ -225,7 +225,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
     )
 
     if (!channel) {
-        throw new APIerror(200, "Channel not found");
+        throw new APIerror(404, "Channel not found");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -255,7 +255,7 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
     )
 
     if (!channel) {
-        throw new APIerror(200, "Channel is not subscribed");
+        throw new APIerror(404, "Channel is not found");
     }
 
     const user = await User.findByIdAndUpdate(

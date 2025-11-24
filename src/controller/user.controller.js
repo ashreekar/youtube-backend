@@ -97,8 +97,12 @@ const createUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
-    if (!username && !email) {
+    if (!req?.body?.username && !req?.body?.email) {
         throw new APIerror(400, "Username or email required");
+    }
+
+    if (!req?.body?.password) {
+        throw new APIerror(400, "Password required");
     }
 
     const user = await User.findOne(
@@ -220,8 +224,8 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 const updateUserDetails = asyncHandler(async (req, res) => {
     const body = req.body;
 
-    if(body.password){
-        throw new APIerror(400,"Password can't be changed");
+    if (body?.password) {
+        throw new APIerror(400, "Password can't be changed");
     }
 
     const isExisting = await User.findOne({

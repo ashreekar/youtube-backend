@@ -8,6 +8,7 @@ import { uploadOnCloudinary } from "../util/cloudinary.js";
 import { Video } from "../model/Video.model.js";
 import { Channel } from "../model/Channel.model.js";
 import { Reaction } from "../model/Reaction.model.js";
+import { Comment } from "../model/Comment.model.js";
 
 const getallvideos = asyncHandler(async (req, res) => {
     const videos = await Video.find({})
@@ -91,6 +92,10 @@ const getVideoById = asyncHandler(async (req, res) => {
         ]
     )
 
+    await Video.findByIdAndUpdate(id, {
+        $inc: { views: 1 }
+    })
+
     if (!video?.length) {
         throw new APIerror(404, "Video not found");
     }
@@ -105,7 +110,7 @@ const uploadVideo = asyncHandler(async (req, res) => {
         throw new APIerror(400, "All fields must be filled");
     }
 
-    const thumbanilFile=req?.files?.thumbnail
+    const thumbanilFile = req?.files?.thumbnail
 
     if (!thumbanilFile) {
         throw new APIerror(400, "Thumbnail is required field");
@@ -144,6 +149,10 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Can't modify important fields");
     }
 
+    if (!req.body) {
+        throw new APIerror(400, "No field is added to modify");
+    }
+
     const updatedvideo = await Video.findByIdAndUpdate(id, { ...req.body }, { new: true });
 
     if (!updatedvideo) {
@@ -153,7 +162,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     const video = await Video.aggregate(
         [
             {
-                $match: { _id: id }
+                $match: { _id: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
@@ -221,7 +230,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         ]
     )
 
-    if (!video?.length) {
+    if (video?.length === 0) {
         throw new APIerror(404, "Video not found");
     }
 
@@ -250,12 +259,13 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const changeThumbnail = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const thumbnailLocalPath = req?.files?.thumbnail[0]?.path;
 
-    if (!thumbnailLocalPath) {
-        throw new APIerror(400, "Cover image is needed to update cover image");
+    const thumbanilFile = req?.files?.thumbnail;
+    if (!thumbanilFile) {
+        throw new APIerror(400, "Thumbnail is needed to update thumbnail image");
     }
 
+    const thumbnailLocalPath = thumbanilFile[0]?.path;
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
     const url = await Video.findByIdAndUpdate(

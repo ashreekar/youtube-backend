@@ -23,7 +23,7 @@ const getPostById = asyncHandler(async (req, res) => {
     const post = await Post.aggregate(
         [
             {
-                $match: { _id: id }
+                $match: { _id: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
@@ -103,7 +103,7 @@ const addPost = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Images is required field");
     }
 
-    const images =await imagesArray.map(async (image) => {
+    const images = await imagesArray.map(async (image) => {
         return await uploadOnCloudinary(image);
     })
 
@@ -128,6 +128,10 @@ const addPost = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    if (!req.body) {
+        throw new APIerror(400, "No field is added to modify");
+    }
+
     const updatedPost = await Post.findByIdAndUpdate(id, { ...req.body }, { new: true });
 
     if (!updatedPost) {
@@ -137,7 +141,7 @@ const updatePost = asyncHandler(async (req, res) => {
     const post = await Post.aggregate(
         [
             {
-                $match: { _id: id }
+                $match: { _id: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
@@ -219,7 +223,7 @@ const deletePost = asyncHandler(async (req, res) => {
     await Channel.findByIdAndUpdate(
         req.channel._id,
         {
-            $pull: { posts:  id  }
+            $pull: { posts: id }
         }
     )
     await Reaction.deleteMany({ post: id })

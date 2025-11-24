@@ -10,18 +10,18 @@ import {
 } from "../controller/video.controller.js";
 import { verifyChannel } from "../middleware/verifyChannel.js";
 import { verifyOwner } from "../middleware/verify.owner.js";
-import {upload} from"../middleware/multer.middleware.js"
+import { upload } from "../middleware/multer.middleware.js"
 
 const router = Router();
 
 router
     .route('/')
     .get(getallvideos)
-    .post(verifyJwt, verifyChannel,upload.fields([{name:"thumbnail",maxCount:1}]) , uploadVideo)
+    .post(verifyJwt, verifyChannel, upload.fields([{ name: "thumbnail", maxCount: 1 }]), uploadVideo)
 
 router
     .route('/thumbnail/:id')
-    .put(verifyJwt, verifyChannel, verifyOwner, changeThumbnail)
+    .put(verifyJwt, verifyChannel, verifyOwner, upload.fields([{ name: "thumbnail", maxCount: 1 }]), changeThumbnail)
 
 router
     .route('/:id')
