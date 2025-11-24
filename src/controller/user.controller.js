@@ -111,7 +111,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new APIerror(404, "User not found");
     }
 
-    const isValidPassword = await user.isPasswordCorrect(password);
+    const isValidPassword = await user.isPasswordCorrect(password)
 
     if (!isValidPassword) {
         throw new APIerror(401, "Invalid password");
@@ -120,7 +120,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { acceastoken } = await generateLoginToken(user._id);
 
     const loggeduser = await User.findById(user._id).
-        select("-password -watchhistory -createdAt -updatedAt")
+        select("-password -watchhistory -createdAt -updatedAt -__v")
 
     const options = {
         httpOnly: true,
@@ -152,7 +152,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
-        .select("-password -createdAt -updatedAt")
+        .select("-password -createdAt -updatedAt -__v")
         .populate(
             {
                 path: "channel",
@@ -220,6 +220,10 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 const updateUserDetails = asyncHandler(async (req, res) => {
     const body = req.body;
 
+    if(body.password){
+        throw new APIerror(400,"Password can't be changed");
+    }
+
     const isExisting = await User.findOne({
         $or: [
             { username: body?.username },
@@ -236,6 +240,8 @@ const updateUserDetails = asyncHandler(async (req, res) => {
         { $set: { ...body } },
         { new: true }
     ).select("-password -createdAt -updatedAt");
+
+    user.save();
 
     return res.status(200).json(
         new APIresponse(200, user, "User details updated")

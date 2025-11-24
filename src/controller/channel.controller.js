@@ -11,11 +11,11 @@ import { Playlist } from "../model/Playlist.model.js";
 import { Post } from "../model/Post.model.js";
 
 const createChannel = asyncHandler(async (req, res) => {
-    const { name, handle } = req.body;
-
-    if (!name || !handle) {
+    if (!req?.body?.name || !req?.body?.handle) {
         throw new APIerror(400, "name and handle is required");
     }
+
+    const { name, handle } = req.body;
 
     const channelExists = await Channel.findOne(
         {
@@ -54,11 +54,13 @@ const createChannel = asyncHandler(async (req, res) => {
 })
 
 const updateAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req?.files?.avatar[0]?.path;
+    const avatarFile = req?.files?.avatar
 
-    if (!avatarLocalPath) {
+    if (!avatarFile || avatarFile.length === 0) {
         throw new APIerror(400, "Avatar is needed to update avatar");
     }
+
+    const avatarLocalPath = avatarFile[0]?.path;
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
@@ -79,11 +81,13 @@ const updateAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateBanner = asyncHandler(async (req, res) => {
-    const bannerLocalPath = req?.files?.banner[0]?.path;
+    const bannerFile = req?.files?.banner
 
-    if (!bannerLocalPath) {
+    if (!bannerFile || bannerFile.length===0) {
         throw new APIerror(400, "Cover image is needed to update cover image");
     }
+    
+    const bannerLocalPath = bannerFile[0]?.path;
 
     const banner = await uploadOnCloudinary(bannerLocalPath);
 
@@ -208,7 +212,7 @@ const deleteChannel = asyncHandler(async (req, res) => {
 })
 
 const subscribeChannel = asyncHandler(async (req, res) => {
-    const { id } = req.params.id;
+    const { id } = req.params;
 
     const channel = await Channel.findByIdAndUpdate(
         id,
@@ -237,6 +241,36 @@ const subscribeChannel = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, user, "Subscribed"))
 })
 
+const unsubscribeChannel = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const channel = await Channel.findByIdAndUpdate(
+        id,
+        {
+            $pull: { subscribers: req.user._id }
+        },
+        {
+            new: true
+        }
+    )
+
+    if (!channel) {
+        throw new APIerror(200, "Channel is not subscribed");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $pull: { subscribedTo: id }
+        },
+        {
+            new: true
+        }
+    )
+
+    res.status(201).json(new APIresponse(201, user, "unsubscribed"))
+})
+
 const updateChannel = asyncHandler(async (req, res) => {
     const channel = await Channel.findByIdAndUpdate(
         req.channel._id,
@@ -255,10 +289,10 @@ const isSubscribed = asyncHandler(async (req, res) => {
     const channelId = req.params.id;
     const userId = req.user._id;
 
-    const user = await User.find(
+    const user = await Channel.findOne(
         {
-            _id: userId,
-            subscribedTo: channelId
+            _id: channelId,
+            subscribers: userId
         }
     )
 
@@ -290,5 +324,6 @@ export {
     subscribeChannel,
     deleteChannel,
     updateChannel,
-    isSubscribed
+    isSubscribed,
+    unsubscribeChannel
 };

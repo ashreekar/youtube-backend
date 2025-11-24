@@ -10,6 +10,7 @@ import {
     getSelfChannel,
     isSubscribed,
     subscribeChannel,
+    unsubscribeChannel,
     updateAvatar,
     updateBanner,
     updateChannel
@@ -37,12 +38,13 @@ router
     .route('/:id')
     .get(verifyJwt, getChannelById)
     .post(verifyJwt, subscribeChannel)
+    .delete(verifyJwt,unsubscribeChannel)
 
 router.route("/subscription/:id").get(verifyJwt, isSubscribed);
 
 router
     .route('/banner')
-    .post(verifyJwt, upload.fields(
+    .put(verifyJwt, upload.fields(
         [
             {
                 name: "banner",
@@ -55,7 +57,7 @@ router
 
 router
     .route('/avatar')
-    .post(verifyJwt, upload.fields(
+    .put(verifyJwt, upload.fields(
         [
             {
                 name: "avatar",

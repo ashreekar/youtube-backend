@@ -23,7 +23,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     const video = await Video.aggregate(
         [
             {
-                $match: { _id: id }
+                $match: { _id: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
@@ -105,11 +105,13 @@ const uploadVideo = asyncHandler(async (req, res) => {
         throw new APIerror(400, "All fields must be filled");
     }
 
-    const thumbnailLocalPath = req?.files?.thumbnail[0]?.path;
+    const thumbanilFile=req?.files?.thumbnail
 
-    if (!thumbnailLocalPath) {
+    if (!thumbanilFile) {
         throw new APIerror(400, "Thumbnail is required field");
     }
+
+    const thumbnailLocalPath = thumbanilFile[0]?.path;
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 

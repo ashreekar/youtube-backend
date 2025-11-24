@@ -7,7 +7,7 @@ const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     if (!req.user) {
-        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
+        return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent, no user logged in"))
     }
 
     const reaction = await Reaction.findOne(
@@ -15,7 +15,7 @@ const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
             video: id,
             reactionBy: req?.user?._id
         }
-    )
+    ).select("type")
 
     if (!reaction) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
@@ -23,7 +23,7 @@ const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
 
     const type = reaction.type;
 
-    res.status(200).json(new APIresponse(200, { reaction: type }, "reaction sent"));
+    res.status(200).json(new APIresponse(200, { reaction: type }, "reaction sent "));
 })
 
 const getReactionStatusOnComment = asyncHandler(async (req, res) => {

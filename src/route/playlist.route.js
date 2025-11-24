@@ -2,7 +2,7 @@ import { Router } from "express";
 import { verifyJwt } from "../middleware/verifyJwt.js";
 import { verifyChannel } from "../middleware/verifyChannel.js";
 import { verifyOwner } from "../middleware/verify.owner.js";
-import { createPlaylist, deletePlaylist, getPlaylists, updatePlaylist, updatePlaylistVideoAdd, updatePlaylistVideRemove } from "../controller/playlist.controller.js";
+import { createPlaylist, deletePlaylist, getPlaylists, updatePlaylistVideoAdd, updatePlaylistVideRemove } from "../controller/playlist.controller.js";
 
 const router = Router();
 

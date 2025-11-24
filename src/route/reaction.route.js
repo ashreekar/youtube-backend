@@ -4,10 +4,19 @@ import { deleteReactionOnComment, deleteReactionOnVideo, deleteReactionPost, get
 
 const router = Router();
 
-router.route('/video/:id').get(getReactionStatusOnVideo).post(verifyJwt, toggleReactionOnVideo).delete(verifyJwt, deleteReactionOnVideo)
+router.route('/video/:id')
+    .get(verifyJwt, getReactionStatusOnVideo)
+    .post(verifyJwt, toggleReactionOnVideo)
+    .delete(verifyJwt, deleteReactionOnVideo)
 
-router.route('/post/:id').get(getReactionStatusOnPost).post(verifyJwt, toggleReactionOnPost).delete(verifyJwt, deleteReactionPost)
+router.route('/post/:id')
+    .get(verifyJwt, getReactionStatusOnPost)
+    .post(verifyJwt, toggleReactionOnPost)
+    .delete(verifyJwt, deleteReactionPost)
 
-router.route('/comment/:id').get(getReactionStatusOnComment).post(verifyJwt, toggleReactionOnComment).delete(verifyJwt, deleteReactionOnComment)
+router.route('/comment/:id')
+    .get(verifyJwt, getReactionStatusOnComment)
+    .post(verifyJwt, toggleReactionOnComment)
+    .delete(verifyJwt, deleteReactionOnComment)
 
 export default router;
