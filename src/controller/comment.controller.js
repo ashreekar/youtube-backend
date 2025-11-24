@@ -1,6 +1,7 @@
 import { APIerror } from "../util/APIerror.js";
 import { APIresponse } from "../util/APIresponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
+import mongoose from "mongoose";
 
 import { Comment } from "../model/Comment.model.js";
 import { Video } from "../model/Video.model.js";
@@ -8,7 +9,12 @@ import { Post } from "../model/Post.model.js";
 
 const commentOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { content } = req.body;
+
+    if (!req.body) {
+        throw new APIerror(404, "Comment body is empty");
+    }
+
+    const { content } = req?.body;
 
     if (!content) {
         throw new APIerror(404, "Comment body is empty");
@@ -30,7 +36,7 @@ const commentOnVideo = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Comment already exists");
     }
 
-    await Comment.create(
+    const comment = await Comment.create(
         {
             content: content,
             commenter: req.user._id,
@@ -38,20 +44,25 @@ const commentOnVideo = asyncHandler(async (req, res) => {
         }
     )
 
-    res.status(201).json(new APIresponse(201, {}, "comment added"));
+    res.status(201).json(new APIresponse(201, comment, "comment added"));
 })
 
 const commentOnCommnent = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { content } = req.body;
+
+    if (!req.body) {
+        throw new APIerror(404, "Comment body is empty");
+    }
+
+    const { content } = req?.body;
 
     if (!content) {
         throw new APIerror(404, "Comment body is empty");
     }
 
-    const comment = await Comment.findById(id);
+    const maincomment = await Comment.findById(id);
 
-    if (!comment) {
+    if (!maincomment) {
         throw new APIerror(400, "Comment not found with id");
     }
 
@@ -65,7 +76,7 @@ const commentOnCommnent = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Comment already exists");
     }
 
-    await Comment.create(
+    const comment = await Comment.create(
         {
             content: content,
             commenter: req.user._id,
@@ -73,12 +84,17 @@ const commentOnCommnent = asyncHandler(async (req, res) => {
         }
     )
 
-    res.status(201).json(new APIresponse(201, {}, "comment added"));
+    res.status(201).json(new APIresponse(201, comment, "comment added"));
 })
 
 const commentOnPost = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { content } = req.body;
+
+    if (!req.body) {
+        throw new APIerror(404, "Comment body is empty");
+    }
+
+    const { content } = req?.body;
 
     if (!content) {
         throw new APIerror(404, "Comment body is empty");
@@ -100,7 +116,7 @@ const commentOnPost = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Comment already exists");
     }
 
-    await Comment.create(
+    const comment = await Comment.create(
         {
             content: content,
             commenter: req.user._id,
@@ -108,7 +124,7 @@ const commentOnPost = asyncHandler(async (req, res) => {
         }
     )
 
-    res.status(201).json(new APIresponse(201, {}, "comment added"));
+    res.status(201).json(new APIresponse(201, comment, "comment added"));
 })
 
 const getCommentOfVideo = asyncHandler(async (req, res) => {
@@ -117,17 +133,17 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate(
         [
             {
-                $match: { video: id }
+                $match: { video: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
                     from: "comments",
                     localField: "video",
-                    foreignField: "_id",
+                    foreignField: "video",
                     as: "comments"
                 }
             },
-              {
+            {
                 $lookup: {
                     from: "reactions",
                     localField: "_id",
@@ -140,30 +156,23 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                     totalComments: {
                         $size: "$comments"
                     },
-                    likes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    likes: {
+                        $size: {
+                            $filter: {
+                                input: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "like"] }
                             }
                         }
                     },
-                     dislikes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    dislikes: {
+                        $size: {
+                            $filter: {
+                                input: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "dislike"] }
                             }
                         }
-                    },
-                }
-            },
-            {
-                $addFields: {
-                    totalComments: {
-                        $size: "$comments"
                     }
                 }
             },
@@ -171,7 +180,7 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                 $project: {
                     totalComments: 1,
                     comments: 1,
-                     likes: 1,
+                    likes: 1,
                     dislikes: 1,
                 }
             }
@@ -187,19 +196,19 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate(
         [
             {
-                $match: { post: id }
+                $match: { post: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
-                    from: "comments",
+                    input: "comments",
                     localField: "post",
-                    foreignField: "_id",
+                    foreignField: "post",
                     as: "comments"
                 }
             },
-              {
+            {
                 $lookup: {
-                    from: "reactions",
+                    input: "reactions",
                     localField: "_id",
                     foreignField: "comment",
                     as: "reactions"
@@ -210,30 +219,23 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                     totalComments: {
                         $size: "$comments"
                     },
-                    likes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    likes: {
+                        $size: {
+                            $filter: {
+                                from: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "like"] }
                             }
                         }
                     },
-                     dislikes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    dislikes: {
+                        $size: {
+                            $filter: {
+                                from: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "dislike"] }
                             }
                         }
-                    },
-                }
-            },
-            {
-                $addFields: {
-                    totalComments: {
-                        $size: "$comments"
                     }
                 }
             },
@@ -241,7 +243,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                 $project: {
                     totalComments: 1,
                     comments: 1,
-                     likes: 1,
+                    likes: 1,
                     dislikes: 1,
                 }
             }
@@ -257,11 +259,11 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate(
         [
             {
-                $match: { post: id }
+                $match: { post: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
-                    from: "comments",
+                    input: "comments",
                     localField: "comment",
                     foreignField: "_id",
                     as: "comments"
@@ -269,7 +271,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "reactions",
+                    input: "reactions",
                     localField: "_id",
                     foreignField: "comment",
                     as: "reactions"
@@ -280,20 +282,20 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                     totalComments: {
                         $size: "$comments"
                     },
-                    likes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    likes: {
+                        $size: {
+                            $filter: {
+                                from: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "like"] }
                             }
                         }
                     },
-                     dislikes:{
-                        $size:{
-                            $filter:{
-                                from:"$reactions",
-                                as:"reaction",
+                    dislikes: {
+                        $size: {
+                            $filter: {
+                                from: "$reactions",
+                                as: "reaction",
                                 cond: { $eq: ["$$reaction.type", "dislike"] }
                             }
                         }
@@ -304,7 +306,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                 $project: {
                     totalComments: 1,
                     comments: 1,
-                     likes: 1,
+                    likes: 1,
                     dislikes: 1,
                     createdAt: 1
                 }
@@ -320,7 +322,7 @@ const deleteComment = asyncHandler(async (req, res) => {
 
     const comment = await Comment.findOneAndDelete(
         {
-            $and: [{ _id: id }, { commenter: req.user._id}]
+            $and: [{ _id: id }, { commenter: req.user._id }]
         }
     );
 
@@ -343,10 +345,10 @@ const updateComment = asyncHandler(async (req, res) => {
 
     const comment = await Comment.findOneAndUpdate(
         {
-            $and: [{ _id: id }, { commenter: req.user._id}]
-        }, 
-        { 
-            content 
+            $and: [{ _id: id }, { commenter: req.user._id }]
+        },
+        {
+            content
         }
     );
 

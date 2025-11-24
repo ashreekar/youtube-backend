@@ -31,7 +31,7 @@ app.use('/api/v1/user', userRouter);
 app.use('/api/v1/video', vidoeRouter);
 app.use('/api/v1/channel', channelRouter);
 app.use('/api/v1/post', postRouter);
-app.use('/api/v1/commnet', commentRouter);
+app.use('/api/v1/comment', commentRouter);
 app.use('/api/v1/reaction', reactionRouter);
 app.use('/api/v1/playlist', playlistRouter);
 

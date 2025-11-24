@@ -6,9 +6,9 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        images: {
+        images: [{
             type: String
-        },
+        }],
         postedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Channel"

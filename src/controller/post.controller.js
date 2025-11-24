@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../util/cloudinary.js";
 // models
 import { Channel } from "../model/Channel.model.js";
 import { Reaction } from "../model/Reaction.model.js";
+import { Comment } from "../model/Comment.model.js";
 import { Post } from "../model/Post.model.js";
 
 const getallPosts = asyncHandler(async (req, res) => {
@@ -99,13 +100,14 @@ const addPost = asyncHandler(async (req, res) => {
 
     const imagesArray = req?.files?.images;
 
-    if (!imagesArray) {
-        throw new APIerror(400, "Images is required field");
+    let images = [];
+    if (imagesArray && imagesArray.length > 0) {
+        images = await Promise.all(
+            imagesArray.map(async (image) => {
+            const imageMeta = await uploadOnCloudinary(image.path);
+            return imageMeta.url;
+        }))
     }
-
-    const images = await imagesArray.map(async (image) => {
-        return await uploadOnCloudinary(image);
-    })
 
     const post = await Post.create(
         {

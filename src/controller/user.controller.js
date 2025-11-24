@@ -43,7 +43,14 @@ const createUser = asyncHandler(async (req, res) => {
         throw new APIerror(400, "User already exists with username or email");
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+
+    const avatarFile = req.files?.avatar;
+
+    if (!avatarFile) {
+        throw new APIerror(400, "Avatar is required");
+    }
+
+    const avatarLocalPath = avatarFile[0]?.path;
 
     if (!avatarLocalPath) {
         throw new APIerror(400, "Avatar is required");
@@ -176,11 +183,13 @@ const getUser = asyncHandler(async (req, res) => {
 })
 
 const updateAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req?.files?.avatar[0]?.path;
+    const avatarFile = req?.files?.avatar;
 
-    if (!avatarLocalPath) {
+    if (!avatarFile) {
         throw new APIerror(400, "Avatar is needed to update avatar");
     }
+
+    const avatarLocalPath = avatarFile[0]?.path;
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
@@ -199,11 +208,13 @@ const updateAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateCoverImage = asyncHandler(async (req, res) => {
-    const coverLocalPath = req?.files?.coverImage[0]?.path;
+    const coverFile = req?.files?.coverImage;
 
-    if (!coverLocalPath) {
+    if (!coverFile) {
         throw new APIerror(400, "Cover image is needed to update cover image");
     }
+
+    const coverLocalPath = req?.files?.coverImage[0]?.path;
 
     const coverImage = await uploadOnCloudinary(coverLocalPath);
 
