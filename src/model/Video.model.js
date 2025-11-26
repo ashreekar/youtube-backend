@@ -40,4 +40,6 @@ const videoSchema = new mongoose.Schema(
 
 videoSchema.plugin(mongooseagreegatepaginate);
 
+videoSchema.index({ title: "text", description: "text" });
+
 export const Video = mongoose.model("Video", videoSchema);

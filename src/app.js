@@ -10,6 +10,7 @@ import postRouter from "./route/post.route.js"
 import commentRouter from "./route/comment.route.js"
 import reactionRouter from "./route/reaction.route.js"
 import playlistRouter from "./route/playlist.route.js"
+import searchRouter from "./route/search.route.js"
 import { errorHandler } from "./middleware/error.middleware.js"
 
 const app = express();
@@ -35,7 +36,8 @@ app.use('/api/v1/post', postRouter);
 app.use('/api/v1/comment', commentRouter);
 app.use('/api/v1/reaction', reactionRouter);
 app.use('/api/v1/playlist', playlistRouter);
+app.use('/api/v1/search', searchRouter);
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 export { app };
