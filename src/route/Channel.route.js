@@ -36,9 +36,9 @@ router
 
 router
     .route('/:id')
-    .get(verifyJwt, getChannelById)
+    .get(getChannelById)
     .post(verifyJwt, subscribeChannel)
-    .delete(verifyJwt,unsubscribeChannel)
+    .delete(verifyJwt, unsubscribeChannel)
 
 router.route("/subscription/:id").get(verifyJwt, isSubscribed);
 

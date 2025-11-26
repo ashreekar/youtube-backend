@@ -84,6 +84,8 @@ const toggleReactionOnVideo = asyncHandler(async (req, res) => {
         {
             reactionBy: req.user._id,
             video: id,
+            post: id,
+            comment: id
         },
         {
             type
@@ -95,7 +97,9 @@ const toggleReactionOnVideo = asyncHandler(async (req, res) => {
             {
                 reactionBy: req.user._id,
                 type,
-                video: id
+                video: id,
+                post: id,
+                comment: id
             }
         )
     }
@@ -114,7 +118,9 @@ const toggleReactionOnPost = asyncHandler(async (req, res) => {
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
+            video: id,
             post: id,
+            comment: id
         },
         {
             type
@@ -126,7 +132,9 @@ const toggleReactionOnPost = asyncHandler(async (req, res) => {
             {
                 reactionBy: req.user._id,
                 type,
-                post: id
+                video: id,
+                post: id,
+                comment: id
             }
         )
     }
@@ -145,7 +153,9 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
-            comment: id,
+            video: id,
+            post: id,
+            comment: id
         },
         {
             type
@@ -157,6 +167,8 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
             {
                 reactionBy: req.user._id,
                 type,
+                video: id,
+                post: id,
                 comment: id
             }
         )

@@ -72,7 +72,7 @@ const createUser = asyncHandler(async (req, res) => {
             avatar: avatar.url,
             watchhistory: [],
             password,
-            coverImage: coverImage.url
+            coverImage: coverImage?.url || ""
         }
     )
 

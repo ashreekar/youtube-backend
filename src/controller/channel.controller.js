@@ -83,10 +83,10 @@ const updateAvatar = asyncHandler(async (req, res) => {
 const updateBanner = asyncHandler(async (req, res) => {
     const bannerFile = req?.files?.banner
 
-    if (!bannerFile || bannerFile.length===0) {
+    if (!bannerFile || bannerFile.length === 0) {
         throw new APIerror(400, "Cover image is needed to update cover image");
     }
-    
+
     const bannerLocalPath = bannerFile[0]?.path;
 
     const banner = await uploadOnCloudinary(bannerLocalPath);
@@ -214,6 +214,17 @@ const deleteChannel = asyncHandler(async (req, res) => {
 const subscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    const isSubscribed = await Channel.findOne(
+        {
+            subscribers: req.user._id,
+            _id: id
+        }
+    )
+
+    if (isSubscribed) {
+        throw new APIerror(400, "User already subscribed");
+    }
+
     const channel = await Channel.findByIdAndUpdate(
         id,
         {
@@ -236,7 +247,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
         {
             new: true
         }
-    )
+    ).select("-password")
 
     res.status(201).json(new APIresponse(201, user, "Subscribed"))
 })
@@ -244,8 +255,8 @@ const subscribeChannel = asyncHandler(async (req, res) => {
 const unsubscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const channel = await Channel.findByIdAndUpdate(
-        id,
+    const channel = await Channel.findOneAndUpdate(
+        { _id: id, subscribers: req.user._id},
         {
             $pull: { subscribers: req.user._id }
         },
@@ -255,7 +266,7 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
     )
 
     if (!channel) {
-        throw new APIerror(404, "Channel is not found");
+        throw new APIerror(404, "Channel is not found or user not subscribed");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -266,7 +277,7 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
         {
             new: true
         }
-    )
+    ).select("-password")
 
     res.status(201).json(new APIresponse(201, user, "unsubscribed"))
 })

@@ -140,54 +140,82 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                     from: "comments",
                     localField: "video",
                     foreignField: "video",
-                    as: "comments"
-                }
-            },
-            {
-                $lookup: {
-                    from: "reactions",
-                    localField: "_id",
-                    foreignField: "comment",
-                    as: "reactions"
-                }
+                    as: "comments",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "reactions",
+                                localField: "_id",
+                                foreignField: "comment",
+                                as: "reactions"
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "commenter",
+                                foreignField: "_id",
+                                as: "commenter"
+                            }
+                        },
+                        {
+                            $addFields: {
+                                likes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "like"] }
+                                        }
+                                    }
+                                },
+                                dislikes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "dislike"] }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    ]
+                },
             },
             {
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
-                    },
-                    likes: {
-                        $size: {
-                            $filter: {
-                                input: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "like"] }
-                            }
-                        }
-                    },
-                    dislikes: {
-                        $size: {
-                            $filter: {
-                                input: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "dislike"] }
-                            }
-                        }
                     }
                 }
             },
             {
                 $project: {
                     totalComments: 1,
-                    comments: 1,
-                    likes: 1,
-                    dislikes: 1,
+                    comments: {
+                        _id: 1,
+                        content: 1,
+                        commenter: {
+                            _id: 1,
+                            username: 1,
+                            avatar: 1
+                        },
+                        likes: 1,
+                        dislikes: 1,
+                        createdAt:1
+                    }
                 }
             }
         ]
     )
 
-    res.status(200).json(new APIresponse(200, comments, "Comments sent sucessfully"));
+    const responseData={
+        comments:comments[0]?.comments || [],
+        totalComments:comments[0]?.totalComments || 0
+    }
+
+    res.status(200).json(new APIresponse(200, responseData, "Comments sent sucessfully"));
 })
 
 const getCommentOfPost = asyncHandler(async (req, res) => {
@@ -200,51 +228,74 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
             },
             {
                 $lookup: {
-                    input: "comments",
+                    from: "comments",
                     localField: "post",
                     foreignField: "post",
-                    as: "comments"
-                }
-            },
-            {
-                $lookup: {
-                    input: "reactions",
-                    localField: "_id",
-                    foreignField: "comment",
-                    as: "reactions"
-                }
+                    as: "comments",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "reactions",
+                                localField: "_id",
+                                foreignField: "comment",
+                                as: "reactions"
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "commenter",
+                                foreignField: "_id",
+                                as: "commenter"
+                            }
+                        },
+                        {
+                            $addFields: {
+                                likes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "like"] }
+                                        }
+                                    }
+                                },
+                                dislikes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "dislike"] }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    ]
+                },
             },
             {
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
-                    },
-                    likes: {
-                        $size: {
-                            $filter: {
-                                from: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "like"] }
-                            }
-                        }
-                    },
-                    dislikes: {
-                        $size: {
-                            $filter: {
-                                from: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "dislike"] }
-                            }
-                        }
                     }
                 }
             },
             {
                 $project: {
                     totalComments: 1,
-                    comments: 1,
-                    likes: 1,
-                    dislikes: 1,
+                    comments: {
+                        _id: 1,
+                        content: 1,
+                        commenter: {
+                            _id: 1,
+                            username: 1,
+                            avatar: 1
+                        },
+                        likes: 1,
+                        dislikes: 1,
+                        createdAt:1
+                    }
                 }
             }
         ]
@@ -256,59 +307,81 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
 const getCommentOfComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const comments = await Comment.aggregate(
+     const comments = await Comment.aggregate(
         [
             {
-                $match: { post: new mongoose.Types.ObjectId(id) }
+                $match: { comment: new mongoose.Types.ObjectId(id) }
             },
             {
                 $lookup: {
-                    input: "comments",
+                    from: "comments",
                     localField: "comment",
-                    foreignField: "_id",
-                    as: "comments"
-                }
-            },
-            {
-                $lookup: {
-                    input: "reactions",
-                    localField: "_id",
                     foreignField: "comment",
-                    as: "reactions"
-                }
+                    as: "comments",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "reactions",
+                                localField: "_id",
+                                foreignField: "comment",
+                                as: "reactions"
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "commenter",
+                                foreignField: "_id",
+                                as: "commenter"
+                            }
+                        },
+                        {
+                            $addFields: {
+                                likes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "like"] }
+                                        }
+                                    }
+                                },
+                                dislikes: {
+                                    $size: {
+                                        $filter: {
+                                            input: "$reactions",
+                                            as: "reaction",
+                                            cond: { $eq: ["$$reaction.type", "dislike"] }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    ]
+                },
             },
             {
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
-                    },
-                    likes: {
-                        $size: {
-                            $filter: {
-                                from: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "like"] }
-                            }
-                        }
-                    },
-                    dislikes: {
-                        $size: {
-                            $filter: {
-                                from: "$reactions",
-                                as: "reaction",
-                                cond: { $eq: ["$$reaction.type", "dislike"] }
-                            }
-                        }
-                    },
+                    }
                 }
             },
             {
                 $project: {
                     totalComments: 1,
-                    comments: 1,
-                    likes: 1,
-                    dislikes: 1,
-                    createdAt: 1
+                    comments: {
+                        _id: 1,
+                        content: 1,
+                        commenter: {
+                            _id: 1,
+                            username: 1,
+                            avatar: 1
+                        },
+                        likes: 1,
+                        dislikes: 1,
+                        createdAt:1
+                    }
                 }
             }
         ]

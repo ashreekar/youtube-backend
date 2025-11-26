@@ -12,7 +12,7 @@ import { Comment } from "../model/Comment.model.js";
 
 const getallvideos = asyncHandler(async (req, res) => {
     const videos = await Video.find({})
-        .select("-updatedAt -__v")
+        .select("-updatedAt -__v -description")
         .populate("owner", "name handle avatar");
 
     res.status(200).json(new APIresponse(200, videos, "videos sent sucessfully"))
@@ -54,6 +54,7 @@ const getVideoById = asyncHandler(async (req, res) => {
             {
                 $addFields: {
                     totalComments: { $size: "$comments" },
+                    totalSubscribers: { $size: "$owner.subscribers" },
                     likes: {
                         $size: {
                             $filter: {
@@ -80,13 +81,20 @@ const getVideoById = asyncHandler(async (req, res) => {
                     url: 1,
                     thumbnail: 1,
                     description: 1,
+                    totalSubscribers: 1,
                     category: 1,
                     views: 1,
                     owner: 1,
                     totalComments: 1,
                     likes: 1,
                     dislikes: 1,
-                    createdAt: 1
+                    createdAt: 1,
+                    owner: {
+                        _id: 1,
+                        name: 1,
+                        handle: 1,
+                        avatar: 1
+                    }
                 }
             }
         ]
