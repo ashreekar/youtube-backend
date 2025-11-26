@@ -64,7 +64,7 @@ const updatePlaylistVideoAdd = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, playlist, "Playlist updated"));
 })
 
-const updatePlaylistVideRemove = asyncHandler(async (req, res) => {
+const updatePlaylistVideoRemove = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { videoId } = req.body;
 
@@ -120,4 +120,4 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     res.status(200).json(new APIresponse(200, {}, "playlist deleted"));
 })
 
-export { createPlaylist, updatePlaylistVideoAdd, updatePlaylistVideRemove, getPlaylists, deletePlaylist };
+export { createPlaylist, updatePlaylistVideoAdd, updatePlaylistVideoRemove, getPlaylists, deletePlaylist };

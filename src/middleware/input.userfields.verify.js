@@ -1,5 +1,5 @@
 import { User } from "../model/User.model.js";
-import { APIerror } from "../util/APIerror";
+import { APIerror } from "../util/APIerror.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 
 const usernameRegex = /^[A-Za-z][A-Za-z0-9_]{2,15}$/;

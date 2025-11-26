@@ -10,11 +10,13 @@ import { Channel } from "../model/Channel.model.js";
 import { Reaction } from "../model/Reaction.model.js";
 import { Comment } from "../model/Comment.model.js";
 import { User } from "../model/User.model.js";
+import { Category } from "../model/Category.model.js";
 
 const getallvideos = asyncHandler(async (req, res) => {
     const videos = await Video.find({})
         .select("-updatedAt -__v -description")
-        .populate("owner", "name handle avatar");
+        .populate("category")
+        .populate("owner", "name handle avatar _id");
 
     res.status(200).json(new APIresponse(200, videos, "videos sent sucessfully"))
 })
@@ -49,6 +51,14 @@ const getVideoById = asyncHandler(async (req, res) => {
                     localField: "owner",
                     foreignField: "_id",
                     as: "owner"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "category"
                 }
             },
             { $unwind: "$owner" },
@@ -105,9 +115,11 @@ const getVideoById = asyncHandler(async (req, res) => {
         $inc: { views: 1 }
     })
 
-    await User.findByIdAndUpdate(req.user._id, {
-        $addToSet: { watchhistory: id }
-    })
+    if (req.user) {
+        await User.findByIdAndUpdate(req?.user?._id, {
+            $addToSet: { watchhistory: id }
+        })
+    }
 
     if (!video?.length) {
         throw new APIerror(404, "Video not found");
@@ -137,13 +149,19 @@ const uploadVideo = asyncHandler(async (req, res) => {
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
+    let categoryObject = await Category.findOne({ name: category.toLowerCase() });
+
+    if (!categoryObject) {
+        categoryObject = await Category.create({ name: category.toLowerCase() });
+    }
+
 
     const video = await Video.create(
         {
             title,
             url,
             description,
-            category,
+            category: categoryObject._id,
             views: 0,
             thumbnail: thumbnail.url,
             owner: req.channel._id
@@ -162,7 +180,7 @@ const uploadVideo = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    if (req.body.views || req.body.owner) {
+    if (req.body.views || req.body.owner || req.body.category) {
         throw new APIerror(400, "Can't modify important fields");
     }
 
@@ -203,6 +221,14 @@ const updateVideo = asyncHandler(async (req, res) => {
                     localField: "owner",
                     foreignField: "_id",
                     as: "owner"
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "category"
                 }
             },
             { $unwind: "$owner" },
@@ -299,4 +325,62 @@ const changeThumbnail = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, url, "thumbanil image changed"));
 })
 
-export { getVideoById, getallvideos, uploadVideo, updateVideo, deleteVideo, changeThumbnail };
+const getCategories = asyncHandler(async (req, res) => {
+    const categories = await Category.find({});
+
+    return res.status(200).json(new APIresponse(200, categories, "Categories sent"));
+})
+
+const getVideosByCategories = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const videoresult = await Category.aggregate(
+        [
+            {
+                $match: { _id: new mongoose.Types.ObjectId(id) }
+            },
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "_id",
+                    foreignField: "category",
+                    as: "videos",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "channels",
+                                localField: "owner",
+                                foreignField: "_id",
+                                as: "owner"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    _id: 1,
+                    videos: {
+                        owner: {
+                            name: 1,
+                            handle: 1,
+                            avatar: 1,
+                            _id: 1
+                        },
+                        title: 1,
+                        url: 1,
+                        thumbnail: 1,
+                        views: 1,
+                        createdAt: 1,
+                        _id:1
+                    }
+                }
+            }
+        ]
+    )
+
+    res.status(200).json(new APIresponse(200, videoresult, "Videos sent sucessfully"));
+})
+
+export { getVideoById, getallvideos, uploadVideo, updateVideo, deleteVideo, changeThumbnail, getCategories, getVideosByCategories };

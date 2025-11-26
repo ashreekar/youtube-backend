@@ -4,7 +4,9 @@ import {
     changeThumbnail,
     deleteVideo,
     getallvideos,
+    getCategories,
     getVideoById,
+    getVideosByCategories,
     updateVideo,
     uploadVideo
 } from "../controller/video.controller.js";
@@ -19,6 +21,14 @@ router
     .route('/')
     .get(getallvideos)
     .post(verifyJwt, verifyChannel, upload.fields([{ name: "thumbnail", maxCount: 1 }]), checkForFiles, uploadVideo)
+
+router
+    .route('/category')
+    .get(getCategories)
+
+router
+    .route('/category/:id')
+    .get(getVideosByCategories)
 
 router
     .route('/thumbnail/:id')
