@@ -2,16 +2,18 @@ import { Router } from 'express';
 import { upload } from "../middleware/multer.middleware.js";
 import { verifyJwt } from '../middleware/verifyJwt.js';
 
-import { 
-    createUser, 
-    deleteUser, 
-    getUser, 
-    loginUser, 
-    logoutUser, 
-    updateAvatar, 
-    updateCoverImage, 
-    updateUserDetails } from '../controller/user.controller.js';
-
+import {
+    createUser,
+    deleteUser,
+    getUser,
+    loginUser,
+    logoutUser,
+    updateAvatar,
+    updateCoverImage,
+    updateUserDetails
+} from '../controller/user.controller.js';
+import { verifyCreateUser } from '../middleware/input.userfields.verify.js';
+import { checkForFiles } from '../middleware/checkforfile.middleware.js';
 
 const router = Router();
 
@@ -30,16 +32,19 @@ router
     {
         name: "coverImage",
         maxCount: 1
-    }]), createUser);
+    }]),
+        verifyCreateUser,
+        checkForFiles,
+        createUser);
 
 router.route('/login').post(loginUser);
 router.route('/logout').post(verifyJwt, logoutUser);
 
 router
     .route('/avatar')
-    .put(verifyJwt, upload.fields([{ name: "avatar", maxCount: 1 }]), updateAvatar);
+    .put(verifyJwt, upload.fields([{ name: "avatar", maxCount: 1 }]), checkForFiles, updateAvatar);
 router
     .route('/cover')
-    .put(verifyJwt, upload.fields([{ name: "coverImage", maxCount: 1 }]), updateCoverImage);
+    .put(verifyJwt, upload.fields([{ name: "coverImage", maxCount: 1 }]), checkForFiles, updateCoverImage);
 
 export default router;

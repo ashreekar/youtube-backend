@@ -112,6 +112,10 @@ const getVideoById = asyncHandler(async (req, res) => {
 })
 
 const uploadVideo = asyncHandler(async (req, res) => {
+    if (!req.body) {
+        throw new APIerror(400, "All fields are empty");
+    }
+
     const { title, url, description, category } = req.body;
 
     if (!title || !url || !description || !category) {

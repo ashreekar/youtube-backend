@@ -27,23 +27,6 @@ const generateLoginToken = async (id) => {
 const createUser = asyncHandler(async (req, res) => {
     const { fullName, username, email, password } = req.body;
 
-    // check all fields are filled
-    if ([fullName, username, email, password].some(field => field?.trim() === "")) {
-        throw new APIerror(400, "All fields must be filled");
-    }
-
-    // check if user exists
-    const existedUser = await User.findOne(
-        {
-            $or: [{ username }, { email }]
-        }
-    )
-
-    if (existedUser) {
-        throw new APIerror(400, "User already exists with username or email");
-    }
-
-
     const avatarFile = req.files?.avatar;
 
     if (!avatarFile) {
@@ -234,6 +217,10 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 
 const updateUserDetails = asyncHandler(async (req, res) => {
     const body = req.body;
+
+    if (Object.keys(req.body).length === 0) {
+        throw new APIerror(400, "At least one field needs to be added");
+    }
 
     if (body?.password) {
         throw new APIerror(400, "Password can't be changed");

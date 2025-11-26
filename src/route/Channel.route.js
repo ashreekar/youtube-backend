@@ -15,6 +15,8 @@ import {
     updateBanner,
     updateChannel
 } from "../controller/channel.controller.js";
+import { verifyCreateChannel } from "../middleware/input.channelfields.verify.js";
+import { checkForFiles } from "../middleware/checkforfile.middleware.js";
 
 const router = Router();
 
@@ -29,6 +31,8 @@ router
             }
         ]
     ),
+        verifyCreateChannel,
+        checkForFiles,
         createChannel
     )
     .put(verifyJwt, verifyChannel, updateChannel)
@@ -51,7 +55,7 @@ router
                 maxCount: 1
             }
         ]
-    ),
+    ), checkForFiles,
         updateBanner
     )
 
@@ -64,7 +68,7 @@ router
                 maxCount: 1
             }
         ]
-    ),
+    ), checkForFiles,
         updateAvatar
     )
 

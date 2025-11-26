@@ -11,21 +11,7 @@ import { Playlist } from "../model/Playlist.model.js";
 import { Post } from "../model/Post.model.js";
 
 const createChannel = asyncHandler(async (req, res) => {
-    if (!req?.body?.name || !req?.body?.handle) {
-        throw new APIerror(400, "name and handle is required");
-    }
-
     const { name, handle } = req.body;
-
-    const channelExists = await Channel.findOne(
-        {
-            owner: req.user._id
-        }
-    )
-
-    if (channelExists) {
-        throw new APIerror(400, "User have a channel already");
-    }
 
     const avatarLocalpath = req?.files?.avatar[0]?.path;
 
@@ -256,7 +242,7 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const channel = await Channel.findOneAndUpdate(
-        { _id: id, subscribers: req.user._id},
+        { _id: id, subscribers: req.user._id },
         {
             $pull: { subscribers: req.user._id }
         },
@@ -283,6 +269,30 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
 })
 
 const updateChannel = asyncHandler(async (req, res) => {
+    if (Object.keys(req.body).length === 0) {
+        throw new APIerror(400, "At least one field needs to be added");
+    }
+
+    const handleRegex = /^[a-z][a-z0-9_]{2,15}$/;
+
+    if (req.body?.handle) {
+        req.body.handle = req.body.handle.trim();
+
+        if (!handleRegex.test(req.body.handle)) {
+            throw new APIerror(400, "Invalid handle");
+        }
+
+        const channelExists = await Channel.findOne({
+            owner: { $ne: req.user._id },
+            handle: req.body.handle
+        });
+
+        if (channelExists) {
+            throw new APIerror(400, "Handle name is already taken");
+        }
+    }
+
+
     const channel = await Channel.findByIdAndUpdate(
         req.channel._id,
         {
