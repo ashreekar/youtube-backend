@@ -53,7 +53,7 @@ const createUser = asyncHandler(async (req, res) => {
             email,
             fullName,
             avatar: avatar.url,
-            watchhistory: [],
+            watchHistory: [],
             password,
             coverImage: coverImage?.url || ""
         }

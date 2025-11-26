@@ -83,13 +83,12 @@ const toggleReactionOnVideo = asyncHandler(async (req, res) => {
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
-            video: id,
-            post: id,
-            comment: id
+            video: id
         },
         {
             type
-        }
+        },
+        { new: true }
     )
 
     if (!updateReaction) {
@@ -98,8 +97,6 @@ const toggleReactionOnVideo = asyncHandler(async (req, res) => {
                 reactionBy: req.user._id,
                 type,
                 video: id,
-                post: id,
-                comment: id
             }
         )
     }
@@ -118,13 +115,12 @@ const toggleReactionOnPost = asyncHandler(async (req, res) => {
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
-            video: id,
-            post: id,
-            comment: id
+            post: id
         },
         {
             type
-        }
+        },
+        { new: true }
     )
 
     if (!updateReaction) {
@@ -132,9 +128,7 @@ const toggleReactionOnPost = asyncHandler(async (req, res) => {
             {
                 reactionBy: req.user._id,
                 type,
-                video: id,
-                post: id,
-                comment: id
+                post: id
             }
         )
     }
@@ -153,13 +147,12 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
-            video: id,
-            post: id,
             comment: id
         },
         {
             type
-        }
+        },
+        { new: true }
     )
 
     if (!updateReaction) {
@@ -167,8 +160,6 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
             {
                 reactionBy: req.user._id,
                 type,
-                video: id,
-                post: id,
                 comment: id
             }
         )

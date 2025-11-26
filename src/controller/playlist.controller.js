@@ -5,18 +5,15 @@ import { APIresponse } from "../util/APIresponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const { title, videoId } = req.body;
+    const { title } = req.body;
 
-    if (!title || !videoId) {
-        throw new APIerror(400, "title and video must be required to create playlist")
+    if (!title) {
+        throw new APIerror(400, "title must be required to create playlist")
     }
 
     const playlist = await Playlist.create(
         {
             title,
-            videos: {
-                $push: videoId
-            },
             createdBy: req.channel._id
         }
     )
@@ -37,17 +34,26 @@ const updatePlaylistVideoAdd = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { videoId } = req.body;
 
-    if (!title || !videoId) {
-        throw new APIerror(400, "title and video must be required to create playlist")
+    if (!videoId) {
+        throw new APIerror(400, "video must be required to add to playlist")
+    }
+
+    const isVideoExists = await Playlist.findOne(
+        {
+            videos: videoId,
+            _id: id
+        }
+    )
+
+    if (isVideoExists) {
+        throw new APIerror(400, "Video is already in playlist")
     }
 
     const playlist = await Playlist.findByIdAndUpdate(
+        id,
         {
-            id
-        },
-        {
-            videos: {
-                $push: videoId
+            $push: {
+                videos: videoId
             }
         },
         {
@@ -62,18 +68,14 @@ const updatePlaylistVideRemove = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { videoId } = req.body;
 
-    if (!title || !videoId) {
-        throw new APIerror(400, "title and video must be required to create playlist")
+    if (!videoId) {
+        throw new APIerror(400, "video must be required to delete from playlist")
     }
 
     const playlist = await Playlist.findByIdAndUpdate(
+        id,
         {
-            id
-        },
-        {
-            videos: {
-                $pull: videoId
-            }
+            $pull: { videos: videoId },
         },
         {
             new: true
@@ -96,19 +98,13 @@ const getPlaylists = asyncHandler(async (req, res) => {
         }
     ).populate("videos")
 
-    if (!playlists) {
-        throw new APIerror(404, "No playlsit found");
-    }
-
     res.status(200).json(new APIresponse(200, playlists, "playlist fetched"));
 })
 
 const deletePlaylist = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const playlists = await Playlist.findByIdAndDelete(
-        id
-    )
+    const playlists = await Playlist.findByIdAndDelete(id)
 
     if (!playlists) {
         throw new APIerror(404, "No playlsit found");
@@ -117,9 +113,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     await Channel.findByIdAndUpdate(
         req.channel._id,
         {
-            $pull: {
-                id
-            }
+            $pull: { playlist: id }
         }
     )
 

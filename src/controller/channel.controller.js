@@ -181,9 +181,9 @@ const getChannelById = asyncHandler(async (req, res) => {
 
 const deleteChannel = asyncHandler(async (req, res) => {
     const channel = await Channel.findByIdAndDelete(req.channel.id);
-    await Video.findOneAndDelete({ owner: req.channel._id });
-    await Post.findOneAndDelete({ postedBy: req.channel._id });
-    await Playlist.findOneAndDelete({ createdBy: req.channel._id });
+    await Video.deleteMany({ owner: req.channel._id });
+    await Post.deleteMany({ postedBy: req.channel._id });
+    await Playlist.deleteMany({ createdBy: req.channel._id });
 
     await User.findByIdAndUpdate(
         req.user._id,

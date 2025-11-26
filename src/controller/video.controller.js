@@ -9,6 +9,7 @@ import { Video } from "../model/Video.model.js";
 import { Channel } from "../model/Channel.model.js";
 import { Reaction } from "../model/Reaction.model.js";
 import { Comment } from "../model/Comment.model.js";
+import { User } from "../model/User.model.js";
 
 const getallvideos = asyncHandler(async (req, res) => {
     const videos = await Video.find({})
@@ -102,6 +103,10 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     await Video.findByIdAndUpdate(id, {
         $inc: { views: 1 }
+    })
+
+    await User.findByIdAndUpdate(req.user._id, {
+        $addToSet: { watchhistory: id }
     })
 
     if (!video?.length) {

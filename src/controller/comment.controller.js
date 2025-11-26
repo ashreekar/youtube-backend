@@ -26,16 +26,6 @@ const commentOnVideo = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Video not found with id");
     }
 
-    const commentExists = await Comment.findOne(
-        {
-            $and: [{ video: id }, { commenter: req.user._id }]
-        }
-    )
-
-    if (commentExists) {
-        throw new APIerror(400, "Comment already exists");
-    }
-
     const comment = await Comment.create(
         {
             content: content,
@@ -66,16 +56,6 @@ const commentOnCommnent = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Comment not found with id");
     }
 
-    const commentExists = await Comment.findOne(
-        {
-            $and: [{ comment: id }, { commenter: req.user._id }]
-        }
-    )
-
-    if (commentExists) {
-        throw new APIerror(400, "Comment already exists");
-    }
-
     const comment = await Comment.create(
         {
             content: content,
@@ -104,16 +84,6 @@ const commentOnPost = asyncHandler(async (req, res) => {
 
     if (!post) {
         throw new APIerror(400, "Post not found with id");
-    }
-
-    const commentExists = await Comment.findOne(
-        {
-            $and: [{ post: id }, { commenter: req.user._id }]
-        }
-    )
-
-    if (commentExists) {
-        throw new APIerror(400, "Comment already exists");
     }
 
     const comment = await Comment.create(
@@ -203,16 +173,16 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                         },
                         likes: 1,
                         dislikes: 1,
-                        createdAt:1
+                        createdAt: 1
                     }
                 }
             }
         ]
     )
 
-    const responseData={
-        comments:comments[0]?.comments || [],
-        totalComments:comments[0]?.totalComments || 0
+    const responseData = {
+        comments: comments[0]?.comments || [],
+        totalComments: comments[0]?.totalComments || 0
     }
 
     res.status(200).json(new APIresponse(200, responseData, "Comments sent sucessfully"));
@@ -294,20 +264,25 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                         },
                         likes: 1,
                         dislikes: 1,
-                        createdAt:1
+                        createdAt: 1
                     }
                 }
             }
         ]
     )
 
-    res.status(200).json(new APIresponse(200, comments, "Comments sent sucessfully"));
+     const responseData = {
+        comments: comments[0]?.comments || [],
+        totalComments: comments[0]?.totalComments || 0
+    }
+
+    res.status(200).json(new APIresponse(200, responseData, "Comments sent sucessfully"));
 })
 
 const getCommentOfComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-     const comments = await Comment.aggregate(
+    const comments = await Comment.aggregate(
         [
             {
                 $match: { comment: new mongoose.Types.ObjectId(id) }
@@ -380,36 +355,46 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                         },
                         likes: 1,
                         dislikes: 1,
-                        createdAt:1
+                        createdAt: 1
                     }
                 }
             }
         ]
     )
 
-    res.status(200).json(new APIresponse(200, comments, "Comments sent sucessfully"));
+     const responseData = {
+        comments: comments[0]?.comments || [],
+        totalComments: comments[0]?.totalComments || 0
+    }
+
+    res.status(200).json(new APIresponse(200, responseData, "Comments sent sucessfully"));
 })
+
+const deleteCommentRecursive = async (commentId, userId) => {
+    const comment = await Comment.findOne({ _id: commentId, commenter: userId });
+    if (!comment) return null;
+
+    const replies = await Comment.find({ comment: commentId });
+
+    for (const reply of replies) {
+        await deleteCommentRecursive(reply._id, reply.commenter);
+    }
+
+    await Comment.deleteOne({ _id: commentId });
+
+    return comment;
+};
 
 const deleteComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const comment = await Comment.findOneAndDelete(
-        {
-            $and: [{ _id: id }, { commenter: req.user._id }]
-        }
-    );
+    const comment = await deleteCommentRecursive(id, req.user._id);
 
-    if (comment) {
+    if (!comment) {
         throw new APIerror(404, "Comment not found or can't delete this comment");
     }
 
-    await Comment.deleteMany(
-        {
-            comment: id
-        }
-    )
-
-    res.status(200).json(new APIresponse(200, "Comment deleted"));
+    res.status(200).json(new APIresponse(200, {}, "Comment deleted"));
 })
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -422,14 +407,15 @@ const updateComment = asyncHandler(async (req, res) => {
         },
         {
             content
-        }
+        },
+        { new: true }
     );
 
-    if (comment) {
+    if (!comment) {
         throw new APIerror(404, "Comment not found");
     }
 
-    res.status(200).json(new APIresponse(200, "Comment deleted"));
+    res.status(200).json(new APIresponse(200, comment, "Comment updated"));
 })
 
 export {
