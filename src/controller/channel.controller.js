@@ -30,13 +30,14 @@ const createChannel = asyncHandler(async (req, res) => {
         }
     )
 
-    await User.findByIdAndUpdate(req.user._id,
+    const user = await User.findByIdAndUpdate(req.user._id,
         {
             $push: { channel: channel._id }
-        }
+        },
+        { new: true }
     )
 
-    res.status(201).json(new APIresponse(201, channel, "channel created"));
+    res.status(201).json(new APIresponse(201, user, "channel created"));
 })
 
 const updateAvatar = asyncHandler(async (req, res) => {
@@ -95,14 +96,14 @@ const updateBanner = asyncHandler(async (req, res) => {
 
 const getSelfChannel = asyncHandler(async (req, res) => {
     const channel = await Channel.findOne({ owner: req.user._id })
-        .select("-createdAt -updatedAt")
+        .select("-updatedAt")
         .populate({
             path: "videos",
-            select: "title url thumbnail views"
+            select: "title url thumbnail views createdAt"
         })
         .populate({
             path: "playlist",
-            select: "name description thumbnail"
+            select: "name description thumbnail createdAt"
         })
         .populate({
             path: "posts",
@@ -119,7 +120,8 @@ const getSelfChannel = asyncHandler(async (req, res) => {
             name: channel.name,
             handle: channel.handle,
             avatar: channel.avatar,
-            banner: channel.banner
+            banner: channel.banner,
+            createdAt: channel.createdAt
         },
         stats: {
             total_videos: channel.videos?.length || 0,
@@ -139,14 +141,14 @@ const getChannelById = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const channel = await Channel.findById(id)
-        .select("-createdAt -updatedAt")
+        .select("-updatedAt")
         .populate({
             path: "videos",
-            select: "title url thumbnail views"
+            select: "title url thumbnail views createdAt"
         })
         .populate({
             path: "playlist",
-            select: "name description thumbnail"
+            select: "name description thumbnail createdAt"
         })
         .populate({
             path: "posts",
@@ -163,7 +165,8 @@ const getChannelById = asyncHandler(async (req, res) => {
             name: channel.name,
             handle: channel.handle,
             avatar: channel.avatar,
-            banner: channel.banner
+            banner: channel.banner,
+            createdAt: channel.createdAt
         },
         stats: {
             total_videos: channel.videos?.length || 0,
@@ -185,16 +188,17 @@ const deleteChannel = asyncHandler(async (req, res) => {
     await Post.deleteMany({ postedBy: req.channel._id });
     await Playlist.deleteMany({ createdBy: req.channel._id });
 
-    await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
                 channel: []
             }
-        }
+        },
+        { new: true }
     )
 
-    res.status(201).json(new APIresponse(201, channel, "Channel deleted sucessfully"));
+    res.status(201).json(new APIresponse(201, user, "Channel deleted sucessfully"));
 })
 
 const subscribeChannel = asyncHandler(async (req, res) => {

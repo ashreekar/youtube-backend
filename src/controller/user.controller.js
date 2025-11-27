@@ -65,8 +65,7 @@ const createUser = asyncHandler(async (req, res) => {
         select("-password -watchhistory -createdAt -updatedAt")
 
     const options = {
-        httpOnly: true,
-        secure: true
+        httpOnly: true
     }
 
     return res
@@ -117,8 +116,7 @@ const loginUser = asyncHandler(async (req, res) => {
         select("-password -watchhistory -createdAt -updatedAt -__v")
 
     const options = {
-        httpOnly: true,
-        secure: true
+        httpOnly: true
     }
 
     return res

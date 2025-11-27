@@ -22,7 +22,7 @@ const router = Router();
 
 router
     .route('/')
-    .get(verifyJwt, getSelfChannel)
+    .get(verifyJwt, verifyChannel, getSelfChannel)
     .post(verifyJwt, upload.fields(
         [
             {
