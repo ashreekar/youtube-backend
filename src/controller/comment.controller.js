@@ -271,7 +271,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
         ]
     )
 
-     const responseData = {
+    const responseData = {
         comments: comments[0]?.comments || [],
         totalComments: comments[0]?.totalComments || 0
     }
@@ -362,7 +362,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
         ]
     )
 
-     const responseData = {
+    const responseData = {
         comments: comments[0]?.comments || [],
         totalComments: comments[0]?.totalComments || 0
     }
@@ -370,32 +370,37 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
     res.status(200).json(new APIresponse(200, responseData, "Comments sent sucessfully"));
 })
 
-const deleteCommentRecursive = async (commentId, userId) => {
-    const comment = await Comment.findOne({ _id: commentId, commenter: userId });
-    if (!comment) return null;
+const deleteCommentRecursive = async (commentId) => {
+     if (commentId===undefined) {
+        return;
+    }
 
     const replies = await Comment.find({ comment: commentId });
 
     for (const reply of replies) {
-        await deleteCommentRecursive(reply._id, reply.commenter);
+        await deleteCommentRecursive(reply._id);
     }
 
     await Comment.deleteOne({ _id: commentId });
-
-    return comment;
 };
 
 const deleteComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
-    const comment = await deleteCommentRecursive(id, req.user._id);
+    const isOwner = await Comment.findOne({
+        _id: id,
+        commenter: req.user._id
+    });
 
-    if (!comment) {
-        throw new APIerror(404, "Comment not found or can't delete this comment");
+    if (!isOwner) {
+        throw new APIerror(400, "Unauthorized request to delete comment");
     }
 
+    await deleteCommentRecursive(id);
+
     res.status(200).json(new APIresponse(200, {}, "Comment deleted"));
-})
+});
+
 
 const updateComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
