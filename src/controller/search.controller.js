@@ -22,11 +22,25 @@ const searchVideos = asyncHandler(async (req, res) => {
         }
     )
         .sort({ score: { $meta: "textScore" } })
-        .select("-updatedAt -__v -description")
+        .select("-updatedAt -__v")
         .populate("category")
         .populate("owner", "name handle avatar _id");
 
-    res.status(200).json(new APIresponse(200, videos, "Videos that included in search query"));
+    if (!(videos.length === 0)) {
+        return res.status(200).json(new APIresponse(200, videos, "Videos that included in search query"));
+    }
+
+    const regex = new RegExp(query.search_query, "i");
+    const secondResponse = await Video.find(
+        {
+            $or: [{ title: regex }, { description: regex }]
+        }
+    )
+        .select("-updatedAt -__v")
+        .populate("category")
+        .populate("owner", "name handle avatar _id");
+
+    res.status(200).json(new APIresponse(200, secondResponse, "Videos that included in search query"));
 })
 
 export { searchVideos };

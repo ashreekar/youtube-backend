@@ -5,8 +5,7 @@ const reactionSchema = new mongoose.Schema(
     reactionBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     type: {
@@ -17,43 +16,22 @@ const reactionSchema = new mongoose.Schema(
     },
     video: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Video",
-      index: true,
-      sparse: true
+      ref: "Video"
     },
 
     post: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
-      index: true,
-      sparse: true
+      ref: "Post"
     },
 
     comment: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-      index: true,
-      sparse: true
+      ref: "Comment"
     }
   },
   {
     timestamps: true
   }
-);
-
-reactionSchema.index(
-  { reactionBy: 1, video: 1 },
-  { unique: true, sparse: true }
-);
-
-reactionSchema.index(
-  { reactionBy: 1, post: 1 },
-  { unique: true, sparse: true }
-);
-
-reactionSchema.index(
-  { reactionBy: 1, comment: 1 },
-  { unique: true, sparse: true }
 );
 
 export const Reaction = mongoose.model("Reaction", reactionSchema);
