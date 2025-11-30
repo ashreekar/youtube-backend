@@ -99,7 +99,7 @@ const getSelfChannel = asyncHandler(async (req, res) => {
         .select("-updatedAt")
         .populate({
             path: "videos",
-            select: "title url thumbnail views createdAt"
+            select: "title url thumbnail views createdAt description"
         })
         .populate({
             path: "playlist",
@@ -203,6 +203,19 @@ const deleteChannel = asyncHandler(async (req, res) => {
 
 const subscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    const isOwner = await Channel.find(
+        {
+            $and: [
+                { _id: id },
+                { owner: req.user._id }
+            ]
+        }
+    )
+
+    if (isOwner.length > 0) {
+        throw new APIerror(400, "Can't subscribe to own channel");
+    }
 
     const isSubscribed = await Channel.findOne(
         {
@@ -314,6 +327,28 @@ const isSubscribed = asyncHandler(async (req, res) => {
     const channelId = req.params.id;
     const userId = req.user._id;
 
+    const isOwner = await Channel.find(
+        {
+            $and: [
+                { _id: channelId },
+                { owner: userId }
+            ]
+        }
+    )
+
+    if (isOwner.length > 0) {
+        return res.status(200).json(
+            new APIresponse(
+                200,
+                {
+                    subscribed: false,
+                    owner:true
+                },
+                "User is owner"
+            )
+        )
+    }
+
     const user = await Channel.findOne(
         {
             _id: channelId,
@@ -322,18 +357,24 @@ const isSubscribed = asyncHandler(async (req, res) => {
     )
 
     if (user) {
-        res.status(200).json(
+        return res.status(200).json(
             new APIresponse(
                 200,
-                { subscribed: true },
+                {
+                    subscribed: true,
+                    owner:false
+                },
                 "User subscribed"
             )
         )
     } else {
-        res.status(200).json(
+        return res.status(200).json(
             new APIresponse(
                 200,
-                { subscribed: false },
+                { 
+                    subscribed: false,
+                    owner:false
+                },
                 "User not subscribed"
             )
         )

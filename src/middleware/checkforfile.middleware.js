@@ -1,3 +1,4 @@
+import { APIerror } from "../util/APIerror.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 
 const checkForFiles = asyncHandler((req, res, next) => {
