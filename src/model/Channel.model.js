@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// channel models refers users model
 const channelSchema = new mongoose.Schema(
     {
         name: {
@@ -27,16 +28,19 @@ const channelSchema = new mongoose.Schema(
         banner: {
             type: String
         },
+        // Owner is refered from users
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        // videos added from Videos
         videos: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Video"
             }
         ],
+        // subscribers added from subscribers
         subscribers: [
             {
                 type: mongoose.Schema.Types.ObjectId,

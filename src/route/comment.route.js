@@ -13,21 +13,25 @@ import {
 
 const router = Router();
 
+// "/id" to upadate and delete comment for video,post, comment
 router
     .route('/:id')
     .put(verifyJwt, updateComment)
     .delete(verifyJwt, deleteComment)
 
+// get comment by id for video or post comment
 router
     .route('/video/:id')
     .get(getCommentOfVideo)
     .post(verifyJwt, commentOnVideo)
 
+// get comment by id for post or post comment
 router
     .route('/comment/:id')
     .get(getCommentOfComment)
     .post(verifyJwt, commentOnCommnent)
 
+// get comment by id for comment or post comment
 router
     .route('/post/:id')
     .get(getCommentOfPost)

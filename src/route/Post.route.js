@@ -14,6 +14,7 @@ import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router();
 
+//gets all posts and upload post in this route
 router
     .route('/')
     .get(getallPosts)
@@ -26,7 +27,7 @@ router
         ]
     ), addPost)
 
-
+// getpost by id,update post and delte post by id
 router
     .route('/:id')
     .get(getPostById)

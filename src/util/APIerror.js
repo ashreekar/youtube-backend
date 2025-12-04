@@ -1,3 +1,5 @@
+// class of APIerror that extends error class 
+// helps to send custom errors
 class APIerror extends Error {
     constructor(
         statusCode,message="Something went wrong",

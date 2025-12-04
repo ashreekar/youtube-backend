@@ -10,9 +10,11 @@ import { Video } from "../model/Video.model.js";
 import { Playlist } from "../model/Playlist.model.js";
 import { Post } from "../model/Post.model.js";
 
+// crete channel controller
 const createChannel = asyncHandler(async (req, res) => {
     const { name, handle } = req.body;
 
+    // checking for avatr image(compulsary)
     const avatarLocalpath = req?.files?.avatar[0]?.path;
 
     if (!avatarLocalpath) {
@@ -21,6 +23,7 @@ const createChannel = asyncHandler(async (req, res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalpath);
 
+    // creating a channel
     const channel = await Channel.create(
         {
             name,
@@ -30,6 +33,7 @@ const createChannel = asyncHandler(async (req, res) => {
         }
     )
 
+    // pushing channel to user
     const user = await User.findByIdAndUpdate(req.user._id,
         {
             $push: { channel: channel._id }
@@ -40,6 +44,7 @@ const createChannel = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, user, "channel created"));
 })
 
+ // contorller to update avatar
 const updateAvatar = asyncHandler(async (req, res) => {
     const avatarFile = req?.files?.avatar
 
@@ -47,6 +52,7 @@ const updateAvatar = asyncHandler(async (req, res) => {
         throw new APIerror(400, "Avatar is needed to update avatar");
     }
 
+    // on update all files are must
     const avatarLocalPath = avatarFile[0]?.path;
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -67,13 +73,16 @@ const updateAvatar = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, url, "avatar changed"));
 })
 
+// update banner controller
 const updateBanner = asyncHandler(async (req, res) => {
     const bannerFile = req?.files?.banner
 
+    //banner file is neded to update banner
     if (!bannerFile || bannerFile.length === 0) {
         throw new APIerror(400, "Cover image is needed to update cover image");
     }
 
+    // expects a file from multur
     const bannerLocalPath = bannerFile[0]?.path;
 
     const banner = await uploadOnCloudinary(bannerLocalPath);
@@ -95,6 +104,7 @@ const updateBanner = asyncHandler(async (req, res) => {
 })
 
 const getSelfChannel = asyncHandler(async (req, res) => {
+    // getting channel of user
     const channel = await Channel.findOne({ owner: req.user._id })
         .select("-updatedAt")
         .populate({
@@ -110,11 +120,14 @@ const getSelfChannel = asyncHandler(async (req, res) => {
             select: "content images createdAt"
         })
         .lean();
+        // populating important fields like title,url,thumbani,vies from vide
+        // and selecting fields that need to render for playlist and post
 
     if (!channel) {
         throw new APIerror(404, "Channel not found");
     }
 
+    // structurig the channel repsonse 
     const responseObject = {
         meta: {
             name: channel.name,
@@ -137,6 +150,7 @@ const getSelfChannel = asyncHandler(async (req, res) => {
     return res.status(200).json(new APIresponse(200, responseObject, "channel fetched sucessfully"));
 })
 
+// get channel by id contorller
 const getChannelById = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -160,6 +174,7 @@ const getChannelById = asyncHandler(async (req, res) => {
         throw new APIerror(404, "Channel not found");
     }
 
+    // structuring the response of object
     const responseObject = {
         meta: {
             name: channel.name,
@@ -188,6 +203,7 @@ const deleteChannel = asyncHandler(async (req, res) => {
     await Post.deleteMany({ postedBy: req.channel._id });
     await Playlist.deleteMany({ createdBy: req.channel._id });
 
+    // deleting the channel and all resources from chanel
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -202,6 +218,7 @@ const deleteChannel = asyncHandler(async (req, res) => {
 })
 
 const subscribeChannel = asyncHandler(async (req, res) => {
+    //contorller to subscribe to channel
     const { id } = req.params;
 
     const isOwner = await Channel.find(
@@ -224,10 +241,12 @@ const subscribeChannel = asyncHandler(async (req, res) => {
         }
     )
 
+    // checking if user already subscribed to avoid duplicate
     if (isSubscribed) {
         throw new APIerror(400, "User already subscribed");
     }
 
+    //pushing user to subscribers field
     const channel = await Channel.findByIdAndUpdate(
         id,
         {
@@ -242,6 +261,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
         throw new APIerror(404, "Channel not found");
     }
 
+    // pushing channel to subscription field
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -258,6 +278,7 @@ const subscribeChannel = asyncHandler(async (req, res) => {
 const unsubscribeChannel = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    //unsubscribing from channel by removing the user
     const channel = await Channel.findOneAndUpdate(
         { _id: id, subscribers: req.user._id },
         {
@@ -272,6 +293,7 @@ const unsubscribeChannel = asyncHandler(async (req, res) => {
         throw new APIerror(404, "Channel is not found or user not subscribed");
     }
 
+    // removing subscriptions from user
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -290,8 +312,10 @@ const updateChannel = asyncHandler(async (req, res) => {
         throw new APIerror(400, "At least one field needs to be added");
     }
 
+    // upating channel
     const handleRegex = /^[a-z][a-z0-9_]{2,15}$/;
 
+    // chekcing for channel exists before updating
     if (req.body?.handle) {
         req.body.handle = req.body.handle.trim();
 
@@ -310,6 +334,7 @@ const updateChannel = asyncHandler(async (req, res) => {
     }
 
 
+    // updating channel
     const channel = await Channel.findByIdAndUpdate(
         req.channel._id,
         {
@@ -327,6 +352,7 @@ const isSubscribed = asyncHandler(async (req, res) => {
     const channelId = req.params.id;
     const userId = req.user._id;
 
+    // chekcing if user is owner of channel
     const isOwner = await Channel.find(
         {
             $and: [
@@ -336,6 +362,7 @@ const isSubscribed = asyncHandler(async (req, res) => {
         }
     )
 
+    // if owner sending response
     if (isOwner.length > 0) {
         return res.status(200).json(
             new APIresponse(
@@ -349,6 +376,7 @@ const isSubscribed = asyncHandler(async (req, res) => {
         )
     }
 
+    // checking for subscribed for channel
     const user = await Channel.findOne(
         {
             _id: channelId,

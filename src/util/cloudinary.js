@@ -1,14 +1,14 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
-// Configuration
+// Configuration of cludinay
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
+// function to upload a resource oncludinary
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null;
@@ -19,6 +19,8 @@ const uploadOnCloudinary = async (localFilePath) => {
         });
 
         console.log("✅ File uploaded securely 🌐", response.url);
+        // deteing after upload from cloudinary
+        // resource will be in public
         fs.unlinkSync(localFilePath);
         return response;
 

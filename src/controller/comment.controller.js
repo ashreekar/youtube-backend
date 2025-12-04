@@ -7,8 +7,10 @@ import { Comment } from "../model/Comment.model.js";
 import { Video } from "../model/Video.model.js";
 import { Post } from "../model/Post.model.js";
 
+// comment on video,comment,post are same but differs in model
 const commentOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    // check for comment and create on video by video id
 
     if (!req.body) {
         throw new APIerror(404, "Comment body is empty");
@@ -37,9 +39,10 @@ const commentOnVideo = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, comment, "comment added"));
 })
 
+// commenting on comment
 const commentOnCommnent = asyncHandler(async (req, res) => {
     const { id } = req.params;
-
+// check for comment and create on comment by comment id
     if (!req.body) {
         throw new APIerror(404, "Comment body is empty");
     }
@@ -67,8 +70,10 @@ const commentOnCommnent = asyncHandler(async (req, res) => {
     res.status(201).json(new APIresponse(201, comment, "comment added"));
 })
 
+// commenting on post
 const commentOnPost = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    // check for comment and create on post by post id
 
     if (!req.body) {
         throw new APIerror(404, "Comment body is empty");
@@ -103,15 +108,18 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate(
         [
             {
+                // matching comment from id
                 $match: { video: new mongoose.Types.ObjectId(id) }
             },
             {
+                // adding fields like comments
                 $lookup: {
                     from: "comments",
                     localField: "video",
                     foreignField: "video",
                     as: "comments",
                     pipeline: [
+                         // furthur pipeline for reaction on all comments and users
                         {
                             $lookup: {
                                 from: "reactions",
@@ -129,6 +137,7 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                             }
                         },
                         {
+                            // getting total count comments and reaction
                             $addFields: {
                                 likes: {
                                     $size: {
@@ -154,6 +163,7 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                 },
             },
             {
+                // adding total of 1st level comments
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
@@ -161,6 +171,7 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
                 }
             },
             {
+                //projecting all comment fields and nested fields
                 $project: {
                     totalComments: 1,
                     comments: {
@@ -180,6 +191,7 @@ const getCommentOfVideo = asyncHandler(async (req, res) => {
         ]
     )
 
+    // removing from array and structuring response
     const responseData = {
         comments: comments[0]?.comments || [],
         totalComments: comments[0]?.totalComments || 0
@@ -194,9 +206,11 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate(
         [
             {
+                // matching comment from id
                 $match: { post: new mongoose.Types.ObjectId(id) }
             },
             {
+                // adding fields like comments
                 $lookup: {
                     from: "comments",
                     localField: "post",
@@ -204,6 +218,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                     as: "comments",
                     pipeline: [
                         {
+                            // furthur pipeline for reaction on all comments and users
                             $lookup: {
                                 from: "reactions",
                                 localField: "_id",
@@ -220,6 +235,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                             }
                         },
                         {
+                            // getting total count comments and reaction
                             $addFields: {
                                 likes: {
                                     $size: {
@@ -245,6 +261,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                 },
             },
             {
+                // adding total of 1st level comments
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
@@ -252,6 +269,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
                 }
             },
             {
+                //projecting all comment fields and nested fields
                 $project: {
                     totalComments: 1,
                     comments: {
@@ -271,6 +289,7 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
         ]
     )
 
+    // removing from array and structuring response
     const responseData = {
         comments: comments[0]?.comments || [],
         totalComments: comments[0]?.totalComments || 0
@@ -282,12 +301,15 @@ const getCommentOfPost = asyncHandler(async (req, res) => {
 const getCommentOfComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // Note: In this agregation comment can be from top level or any other level
     const comments = await Comment.aggregate(
         [
             {
+                // matching comment from id
                 $match: { comment: new mongoose.Types.ObjectId(id) }
             },
             {
+                // adding fields like comments
                 $lookup: {
                     from: "comments",
                     localField: "comment",
@@ -295,6 +317,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                     as: "comments",
                     pipeline: [
                         {
+                            // furthur pipeline for reaction on all comments and users
                             $lookup: {
                                 from: "reactions",
                                 localField: "_id",
@@ -311,6 +334,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                             }
                         },
                         {
+                            // getting total count comments and reaction
                             $addFields: {
                                 likes: {
                                     $size: {
@@ -336,6 +360,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                 },
             },
             {
+                // adding total of 1st level comments
                 $addFields: {
                     totalComments: {
                         $size: "$comments"
@@ -343,6 +368,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
                 }
             },
             {
+                //projecting all comment fields and nested fields
                 $project: {
                     totalComments: 1,
                     comments: {
@@ -362,6 +388,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
         ]
     )
 
+    // removing from array and structuring response
     const responseData = {
         comments: comments[0]?.comments || [],
         totalComments: comments[0]?.totalComments || 0
@@ -371,6 +398,7 @@ const getCommentOfComment = asyncHandler(async (req, res) => {
 })
 
 const deleteCommentRecursive = async (commentId) => {
+    // fucntion to delete comment at all level recusivley
      if (commentId===undefined) {
         return;
     }
@@ -387,6 +415,7 @@ const deleteCommentRecursive = async (commentId) => {
 const deleteComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // dleteing comment by comment id
     const isOwner = await Comment.findOne({
         _id: id,
         commenter: req.user._id
@@ -406,6 +435,7 @@ const updateComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
 
+    // in comment only can update comment body
     const comment = await Comment.findOneAndUpdate(
         {
             $and: [{ _id: id }, { commenter: req.user._id }]

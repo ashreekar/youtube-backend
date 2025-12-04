@@ -25,6 +25,7 @@ const verifyCreateUser = asyncHandler(async (req, res, next) => {
         throw new APIerror(400, "User already exists with username or email");
     }
 
+    // backedn check for valid email,username,password
     if (!usernameRegex.test(username)) {
         throw new APIerror(400, "Invalid username");
     }

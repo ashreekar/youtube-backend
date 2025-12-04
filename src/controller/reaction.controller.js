@@ -3,9 +3,14 @@ import { APIresponse } from "../util/APIresponse.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 import { Reaction } from "../model/Reaction.model.js"
 
+// all controler to get reaction for video,comment and post are same except search model
+// all controler to toggle reaction for video,comment and post are same except search model
+// all controler to delete reaction for video,comment and post are same except search model
+
 const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // if user not found sending no reaction status
     if (!req.user) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent, no user logged in"))
     }
@@ -17,6 +22,7 @@ const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
         }
     ).select("type")
 
+    // if no reaction found sending reactionas NA
     if (!reaction) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
     }
@@ -29,6 +35,7 @@ const getReactionStatusOnVideo = asyncHandler(async (req, res) => {
 const getReactionStatusOnComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // if user not found sending no reaction status
     if (!req.user) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
     }
@@ -40,6 +47,7 @@ const getReactionStatusOnComment = asyncHandler(async (req, res) => {
         }
     )
 
+    // if no reaction found sending reactionas NA
     if (!reaction) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
     }
@@ -52,6 +60,7 @@ const getReactionStatusOnComment = asyncHandler(async (req, res) => {
 const getReactionStatusOnPost = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // if user not found sending no reaction status
     if (!req.user) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
     }
@@ -63,6 +72,7 @@ const getReactionStatusOnPost = asyncHandler(async (req, res) => {
         }
     )
 
+    // if no reaction found sending reactionas NA
     if (!reaction) {
         return res.status(200).json(new APIresponse(200, { reaction: "NA" }, "reaction sent"))
     }
@@ -76,10 +86,12 @@ const toggleReactionOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { type } = req.body;
 
+    // expects a type of reaction [like,dislike]
     if (type !== "like" && type !== "dislike") {
         throw new APIerror(400, "Invalid reaction");
     }
 
+    // updating existing reaction if not exists then creating a new reaction
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
@@ -108,10 +120,12 @@ const toggleReactionOnPost = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { type } = req.body;
 
+    // expects a type of reaction [like,dislike]
     if (type !== "like" && type !== "dislike") {
         throw new APIerror(400, "Invalid reaction");
     }
 
+    // updating existing reaction if not exists then creating a new reaction
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
@@ -140,10 +154,12 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { type } = req.body;
 
+    // expects a type of reaction [like,dislike]
     if (type !== "like" && type !== "dislike") {
         throw new APIerror(400, "Invalid reaction");
     }
 
+    // updating existing reaction if not exists then creating a new reaction
     const updateReaction = await Reaction.findOneAndUpdate(
         {
             reactionBy: req.user._id,
@@ -171,6 +187,7 @@ const toggleReactionOnComment = asyncHandler(async (req, res) => {
 const deleteReactionOnVideo = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // delteing a reaction on video
     await Reaction.deleteOne(
         {
             video: id,
@@ -184,6 +201,7 @@ const deleteReactionOnVideo = asyncHandler(async (req, res) => {
 const deleteReactionOnComment = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // delteing a reaction on video
     await Reaction.deleteOne(
         {
             comment: id,
@@ -197,6 +215,7 @@ const deleteReactionOnComment = asyncHandler(async (req, res) => {
 const deleteReactionPost = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
+    // delteing a reaction on video
     await Reaction.deleteOne(
         {
             post: id,

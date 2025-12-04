@@ -20,6 +20,7 @@ import { checkForFiles } from "../middleware/checkforfile.middleware.js";
 
 const router = Router();
 
+// "/" route have get(getownchannel) post(cretechannel) put(updatechannel) dlete(deletechannel)
 router
     .route('/')
     .get(verifyJwt, verifyChannel, getSelfChannel)
@@ -38,14 +39,17 @@ router
     .put(verifyJwt, verifyChannel, updateChannel)
     .delete(verifyJwt, verifyChannel, deleteChannel);
 
+// "/:id" for to getchannel by id, subscribechannel(post), delete(unsubscribe from channel)
 router
     .route('/:id')
     .get(getChannelById)
     .post(verifyJwt, subscribeChannel)
     .delete(verifyJwt, unsubscribeChannel)
 
+// get subscription from channel for a user
 router.route("/subscription/:id").get(verifyJwt, isSubscribed);
 
+// routes to update avatar and banner
 router
     .route('/banner')
     .put(verifyJwt, upload.fields(

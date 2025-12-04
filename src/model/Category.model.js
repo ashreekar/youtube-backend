@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// category schema have field of name
 const categorySchema = new mongoose.Schema(
     {
         name: {

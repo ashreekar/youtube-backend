@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
     {
+        // post model only have content images and owner
         content: {
             type: String,
             required: true

@@ -17,23 +17,28 @@ import { checkForFiles } from '../middleware/checkforfile.middleware.js';
 
 const router = Router();
 
+// route to get all videos and upload videso
 router
     .route('/')
     .get(getallvideos)
     .post(verifyJwt, verifyChannel, upload.fields([{ name: "thumbnail", maxCount: 1 }]), checkForFiles, uploadVideo)
 
+// route to get all categories
 router
     .route('/category')
     .get(getCategories)
 
+// route to getvideos by categories
 router
     .route('/category/:id')
     .get(getVideosByCategories)
 
+// route to update thumbnail to video
 router
     .route('/thumbnail/:id')
     .put(verifyJwt, verifyChannel, verifyOwner, upload.fields([{ name: "thumbnail", maxCount: 1 }]), checkForFiles, changeThumbnail)
 
+    // route to get video by id, update video or dlete video
 router
     .route('/:id')
     .get(getVideoById)

@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
+// userschema
 const userSchema = new Schema(
     {
         username: {
@@ -32,24 +33,28 @@ const userSchema = new Schema(
         coverImage: {
             type: String,
         },
+        // channel will be empty initally
         channel: [
             {
                 type: Schema.Types.ObjectId,
                 ref: "Channel"
             }
         ],
+        // subscribed to have list of subscribed channels
         subscribedTo: [
             {
                 type: Schema.Types.ObjectId,
                 ref: "Channel"
             }
         ],
+        // watch history will store watch history
         watchhistory: [
             {
                 type: Schema.Types.ObjectId,
                 ref: "Video"
             }
         ],
+        // password is stored and hashed
         password: {
             type: String,
             required: [true, 'Password is required'],
@@ -60,6 +65,7 @@ const userSchema = new Schema(
     }
 );
 
+// pre hook runs on every svae but hashes password on every password modification
 userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
@@ -67,10 +73,12 @@ userSchema.pre("save", async function (next) {
     next();
 })
 
+// this method runs to check password is correct
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
 
+// this model genreates acceas token for user on login
 userSchema.methods.generateAcceasToken = async function () {
     const payload = {
         _id: this._id,

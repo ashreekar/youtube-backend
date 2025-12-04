@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import mongooseagreegatepaginate from "mongoose-aggregate-paginate-v2";
 
+// video schema
 const videoSchema = new mongoose.Schema(
     {
         title: {
@@ -18,6 +19,7 @@ const videoSchema = new mongoose.Schema(
         description: {
             type: String
         },
+        // category of video is refered from categories
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
@@ -27,6 +29,7 @@ const videoSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
+        // owner is refered from users not channels
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Channel",
@@ -38,8 +41,10 @@ const videoSchema = new mongoose.Schema(
     }
 )
 
+// mongooseagregate paginate added as plugins
 videoSchema.plugin(mongooseagreegatepaginate);
 
+// index created for text search on ttile
 videoSchema.index({ title: "text", description: "text" });
 
 export const Video = mongoose.model("Video", videoSchema);

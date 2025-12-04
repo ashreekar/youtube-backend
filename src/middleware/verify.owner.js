@@ -4,8 +4,9 @@ import { Video } from "../model/Video.model.js";
 import { APIerror } from "../util/APIerror.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 
+// middleware veirifes the owner of resource
 export const verifyOwner = asyncHandler(async (req, res, next) => {
-
+    // finding  resource and calling next middleware
     const video = await Video.findOne(
         {
             $and: [{ _id: req.params.id }, { owner: req.channel._id }]
