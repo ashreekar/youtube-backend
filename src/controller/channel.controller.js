@@ -41,10 +41,10 @@ const createChannel = asyncHandler(async (req, res) => {
         { new: true }
     )
 
-    res.status(201).json(new APIresponse(201, user, "channel created"));
+    res.status(201).json(new APIresponse(201, { user }, "channel created"));
 })
 
- // contorller to update avatar
+// contorller to update avatar
 const updateAvatar = asyncHandler(async (req, res) => {
     const avatarFile = req?.files?.avatar
 
@@ -120,8 +120,8 @@ const getSelfChannel = asyncHandler(async (req, res) => {
             select: "content images createdAt"
         })
         .lean();
-        // populating important fields like title,url,thumbani,vies from vide
-        // and selecting fields that need to render for playlist and post
+    // populating important fields like title,url,thumbani,vies from vide
+    // and selecting fields that need to render for playlist and post
 
     if (!channel) {
         throw new APIerror(404, "Channel not found");
@@ -369,7 +369,7 @@ const isSubscribed = asyncHandler(async (req, res) => {
                 200,
                 {
                     subscribed: false,
-                    owner:true
+                    owner: true
                 },
                 "User is owner"
             )
@@ -390,7 +390,7 @@ const isSubscribed = asyncHandler(async (req, res) => {
                 200,
                 {
                     subscribed: true,
-                    owner:false
+                    owner: false
                 },
                 "User subscribed"
             )
@@ -399,9 +399,9 @@ const isSubscribed = asyncHandler(async (req, res) => {
         return res.status(200).json(
             new APIresponse(
                 200,
-                { 
+                {
                     subscribed: false,
-                    owner:false
+                    owner: false
                 },
                 "User not subscribed"
             )

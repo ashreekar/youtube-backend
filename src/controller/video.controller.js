@@ -392,7 +392,8 @@ const getVideosByCategories = asyncHandler(async (req, res) => {
                                 foreignField: "_id",
                                 as: "owner"
                             }
-                        }
+                        },
+                        { $unwind: "$owner" },
                     ]
                 }
             },

@@ -3,7 +3,7 @@ import { APIerror } from "../util/APIerror.js";
 import { asyncHandler } from "../util/asyncHandler.js";
 
 const usernameRegex = /^[A-Za-z][A-Za-z0-9_]{2,15}$/;
-const passwordRegex = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$/gm;
+const passwordRegex = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$/;
 const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 const verifyCreateUser = asyncHandler(async (req, res, next) => {
