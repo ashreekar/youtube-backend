@@ -1,14 +1,14 @@
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { asyncHandler } from "../util/asyncHandler.js";
-import { uploadOnCloudinary } from "../util/cloudinary.js"
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 // Models import
-import { Channel } from "../model/Channel.model.js";
-import { User } from "../model/User.model.js";
-import { Video } from "../model/Video.model.js";
-import { Playlist } from "../model/Playlist.model.js";
-import { Post } from "../model/Post.model.js";
+import { Channel } from "../models/Channel.model.js";
+import { User } from "../models/User.model.js";
+import { Video } from "../models/Video.model.js";
+import { Playlist } from "../models/Playlist.model.js";
+import { Post } from "../models/Post.model.js";
 
 // crete channel controller
 const createChannel = asyncHandler(async (req, res) => {

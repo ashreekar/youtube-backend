@@ -1,8 +1,8 @@
-import { Channel } from "../model/Channel.model.js";
-import { Playlist } from "../model/Playlist.model.js";
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { Channel } from "../models/Channel.model.js";
+import { Playlist } from "../models/Playlist.model.js";
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // create playlist contorller
 const createPlaylist = asyncHandler(async (req, res) => {

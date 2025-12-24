@@ -1,7 +1,7 @@
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { asyncHandler } from "../util/asyncHandler.js";
-import { Reaction } from "../model/Reaction.model.js"
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Reaction } from "../models/Reaction.model.js"
 
 // all controler to get reaction for video,comment and post are same except search model
 // all controler to toggle reaction for video,comment and post are same except search model

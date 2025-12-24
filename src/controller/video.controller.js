@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { asyncHandler } from "../util/asyncHandler.js";
-import { uploadOnCloudinary } from "../util/cloudinary.js";
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // models
-import { Video } from "../model/Video.model.js";
-import { Channel } from "../model/Channel.model.js";
-import { Reaction } from "../model/Reaction.model.js";
-import { Comment } from "../model/Comment.model.js";
-import { User } from "../model/User.model.js";
-import { Category } from "../model/Category.model.js";
+import { Video } from "../models/Video.model.js";
+import { Channel } from "../models/Channel.model.js";
+import { Reaction } from "../models/Reaction.model.js";
+import { Comment } from "../models/Comment.model.js";
+import { User } from "../models/User.model.js";
+import { Category } from "../models/Category.model.js";
 
 // handler to getall videos
 const getallvideos = asyncHandler(async (req, res) => {

@@ -1,16 +1,16 @@
-import { User } from "../model/User.model.js";
-import { asyncHandler } from "../util/asyncHandler.js";
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { uploadOnCloudinary, deleteOnCloudinary } from "../util/cloudinary.js";
+import { User } from "../models/User.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { uploadOnCloudinary, deleteOnCloudinary } from "../utils/cloudinary.js";
 
 // Models import
-import { Video } from "../model/Video.model.js";
-import { Channel } from "../model/Channel.model.js";
-import { Comment } from "../model/Comment.model.js";
-import { Playlist } from "../model/Playlist.model.js";
-import { Post } from "../model/Post.model.js";
-import { Reaction } from "../model/Reaction.model.js";
+import { Video } from "../models/Video.model.js";
+import { Channel } from "../models/Channel.model.js";
+import { Comment } from "../models/Comment.model.js";
+import { Playlist } from "../models/Playlist.model.js";
+import { Post } from "../models/Post.model.js";
+import { Reaction } from "../models/Reaction.model.js";
 
 // function to generate acceastoken on login
 const generateLoginToken = async (id) => {

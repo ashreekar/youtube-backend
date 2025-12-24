@@ -3,14 +3,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 // Routes
-import userRouter from './route/user.route.js'
-import channelRouter from './route/channel.route.js'
-import videoRouter from './route/video.route.js'
-import postRouter from './route/post.route.js'
-import commentRouter from './route/comment.route.js'
-import reactionRouter from './route/reaction.route.js'
-import playlistRouter from './route/playlist.route.js'
-import searchRouter from './route/search.route.js'
+import userRouter from './routes/user.route.js'
+import channelRouter from './routes/channel.route.js'
+import videoRouter from './routes/video.route.js'
+import postRouter from './routes/post.route.js'
+import commentRouter from './routes/comment.route.js'
+import reactionRouter from './routes/reaction.route.js'
+import playlistRouter from './routes/playlist.route.js'
+import searchRouter from './routes/search.route.js'
 
 //  global error handler
 import { errorHandler } from './middleware/error.middleware.js'

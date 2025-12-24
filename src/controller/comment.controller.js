@@ -1,11 +1,11 @@
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 
-import { Comment } from "../model/Comment.model.js";
-import { Video } from "../model/Video.model.js";
-import { Post } from "../model/Post.model.js";
+import { Comment } from "../models/Comment.model.js";
+import { Video } from "../models/Video.model.js";
+import { Post } from "../models/Post.model.js";
 
 // comment on video,comment,post are same but differs in model
 const commentOnVideo = asyncHandler(async (req, res) => {

@@ -1,6 +1,6 @@
-import { User } from "../model/User.model.js";
-import { APIerror } from "../util/APIerror.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { User } from "../models/User.model.js";
+import { APIerror } from "../utils/APIerror.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // verifying channel exists for a user
 // for channel based routes

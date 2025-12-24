@@ -1,8 +1,8 @@
-import { Playlist } from "../model/Playlist.model.js";
-import { Post } from "../model/Post.model.js";
-import { Video } from "../model/Video.model.js";
-import { APIerror } from "../util/APIerror.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { Playlist } from "../models/Playlist.model.js";
+import { Post } from "../models/Post.model.js";
+import { Video } from "../models/Video.model.js";
+import { APIerror } from "../utils/APIerror.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // middleware veirifes the owner of resource
 export const verifyOwner = asyncHandler(async (req, res, next) => {

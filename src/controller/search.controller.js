@@ -1,8 +1,8 @@
-import { asyncHandler } from "../util/asyncHandler.js";
-import { APIerror } from "../util/APIerror.js";
-import { APIresponse } from "../util/APIresponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { APIerror } from "../utils/APIerror.js";
+import { APIresponse } from "../utils/APIresponse.js";
 
-import { Video } from "../model/Video.model.js";
+import { Video } from "../models/Video.model.js";
 
 // search videos based on title or description
 const searchVideos = asyncHandler(async (req, res) => {

@@ -1,6 +1,6 @@
-import { User } from "../model/User.model.js";
-import { APIerror } from "../util/APIerror.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { User } from "../models/User.model.js";
+import { APIerror } from "../utils/APIerror.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const usernameRegex = /^[A-Za-z][A-Za-z0-9_]{2,15}$/;
 const passwordRegex = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$/;

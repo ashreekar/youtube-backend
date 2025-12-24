@@ -1,6 +1,6 @@
-import { Channel } from "../model/Channel.model.js";
-import { APIerror } from "../util/APIerror.js";
-import { asyncHandler } from "../util/asyncHandler.js";
+import { Channel } from "../models/Channel.model.js";
+import { APIerror } from "../utils/APIerror.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const handleRegex = /^[a-z][a-z0-9_]{2,15}$/;
 
